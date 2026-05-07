@@ -1,0 +1,61 @@
+"use client";
+
+import Link from "next/link";
+import { ShoppingBag } from "lucide-react";
+
+export default function ProductCard({ product, index = 0 }) {
+  return (
+    <Link href={`/products/${product.id}`} className="group block">
+      <div className="flex flex-col h-full relative">
+        
+        {/* IMAGE CONTAINER (Taller Aspect Ratio for Premium Feel) */}
+        <div className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-slate-100 mb-5">
+          
+          {/* BADGE (Example logic for visual dynamic, e.g., every 3rd item is exclusive) */}
+          {index % 3 === 0 && (
+            <div className="absolute top-4 left-4 z-20 bg-slate-900/80 backdrop-blur-md text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full">
+              Eksklusif
+            </div>
+          )}
+
+          <img
+            src={product.usage_image || "/no-image.png"}
+            alt={product.name}
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+          />
+          
+          {/* SOFT GRADIENT OVERLAY ON HOVER */}
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          
+          {/* FLOATING ACTION */}
+          <div className="absolute bottom-6 left-0 w-full flex justify-center opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 ease-out z-20">
+            <div className="bg-white/95 backdrop-blur-sm text-slate-900 px-6 py-3 rounded-full font-semibold text-sm shadow-xl flex items-center gap-2 hover:bg-cyan-600 hover:text-white transition-colors">
+              <ShoppingBag size={16} />
+              Lihat Detail
+            </div>
+          </div>
+        </div>
+
+        {/* CONTENT INFO (Minimalist & Clean) */}
+        <div className="flex flex-col flex-grow px-2">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-2">
+            <h3 className="font-bold text-lg text-slate-900 group-hover:text-cyan-600 transition-colors line-clamp-2 leading-snug">
+              {product.name}
+            </h3>
+            <span className="text-cyan-700 font-bold whitespace-nowrap">
+              Rp {Number(product.price || 0).toLocaleString("id-ID")}
+            </span>
+          </div>
+          
+          <p className="text-slate-500 text-sm line-clamp-2 mt-auto">
+            {product.description || "Produk masterpiece dengan material berkualitas tinggi."}
+          </p>
+          
+          {/* DECORATIVE LINE ON HOVER */}
+          <div className="h-0.5 w-0 bg-cyan-500 mt-4 transition-all duration-500 group-hover:w-full"></div>
+        </div>
+
+      </div>
+    </Link>
+  );
+}
