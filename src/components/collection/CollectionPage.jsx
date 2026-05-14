@@ -10,12 +10,15 @@ export default function CollectionPage() {
   const [productsMap, setProductsMap] = useState({});
   const [loading, setLoading] = useState(true);
 
-  const BASE_URL = "http://localhost:8000"; 
+  const BASE_URL = "https://arthakara-api-production.up.railway.app/api"; 
+  const IMAGE_BASE_URL = "https://arthakara-api-production.up.railway.app";
 
   // FETCH PRODUCTS PER COLLECTION
   const fetchProducts = async (collectionId) => {
     try {
-      const res = await fetch(`/api/collections/${collectionId}/products`);
+      const res = await fetch(`${BASE_URL}/collections/${collectionId}/products`, {
+        headers: { 'Accept': 'application/json' }
+      });
       const data = await res.json();
       return data?.data || data || [];
     } catch (err) {
@@ -117,7 +120,7 @@ export default function CollectionPage() {
                                 product.usage_image
                                   ? product.usage_image.startsWith("http")
                                     ? product.usage_image
-                                    : `${BASE_URL}/storage/${product.usage_image}`
+                                    : `${IMAGE_BASE_URL}/storage/${product.usage_image}`
                                   : "/no-image.png"
                               }
                               alt={product.name}

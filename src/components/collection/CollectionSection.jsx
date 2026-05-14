@@ -20,7 +20,9 @@ export default function CollectionSection() {
         const collectionsWithCounts = await Promise.all(
           collectionsData.map(async (col) => {
             try {
-              const prodRes = await fetch(`/api/collections/${col.id}/products`);
+              const prodRes = await fetch(`https://arthakara-api-production.up.railway.app/api/collections/${col.id}/products`, {
+                headers: { 'Accept': 'application/json' }
+              });
               const prodData = await prodRes.json();
               const products = prodData?.data || prodData || [];
               return { ...col, productCount: products.length };

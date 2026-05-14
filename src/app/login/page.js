@@ -1,29 +1,13 @@
-"use client";
-
-import { useState } from "react";
-import { useAuth } from "@/components/context/AuthContext";
+import { Suspense } from "react";
 import GuestRoute from "@/components/auth/GuesRoute";
 import Login from "@/components/auth/LoginForm"; 
 
 export default function LoginPage() {
-  const { login } = useAuth();
-
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
-  const handleLogin = async (e) => {
-    e.preventDefault();
-
-    try {
-      await login(email, password);
-    } catch (err) {
-      alert(err.message);
-    }
-  };
-
   return (
     <GuestRoute>
+      <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
         <Login/>
+      </Suspense>
     </GuestRoute>
   );
 }

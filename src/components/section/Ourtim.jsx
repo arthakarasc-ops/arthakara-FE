@@ -61,9 +61,9 @@
           { name: "Adrienne", fullName: "Emanuella Adrienne", role: "Director of Marketing", photo: "/image/Adrienne - Mrk.jpg", bio: "Stop wishing, just do it." },
           { name: "Davis", fullName: "Kurniawan Davis M.", role: "Market Research", photo: "/image/Davis - market research.jpg", bio: "Kemarin adalah sejarah, hari ini misteri." },
           { name: "Marvel", fullName: "Marvellino Winatajaya", role: "Brand Manager", photo: "/image/Marvel - brand manager.jpg", bio: "Be led by the dreams in your heart." },
-          { name: "Stefano", fullName: "Stefano Theodore B.", role: "Creative Design", photo: "/image/Stefano - Creative Design.jpg", bio: "Repetisi membangun reputasi." },
+          { name: "Stefano", fullName: "Stefano Theodore B.", role: "Creative Design", photo: "/image/Fano - Creative Design.jpg", bio: "Repetisi membangun reputasi." },
           { name: "Matthew", fullName: "Matthew Sudharsono", role: "Creative Design", photo: "/image/Matthew S - brand manager.jpg", bio: "It is better to shoot and miss." },
-          { name: "Griffint", fullName: "Griffint Imanuel P.", role: "Event Manager", photo: "/image/Griffint - event manager.jpg", bio: "Kesuksesan adalah hasil dari belajar." }
+          { name: "Griffint", fullName: "Griffint Imanuel P.", role: "Event Manager", photo: "/image/Griffint - Event Manager.jpg", bio: "Kesuksesan adalah hasil dari belajar." }
         ]
       },
       pr: {
@@ -84,7 +84,7 @@
           { name: "Nasha", fullName: "Angela Novenasha G.", role: "Director of HRD", photo: "/image/Nasha - HRD.jpg", bio: "Speak softly and carry a big stick." },
           { name: "Jessica", fullName: "Jessica Chie S.", role: "Attendance & Payroll", photo: "/image/Jessica - attendance & payroll.jpg", bio: "Don't wish for it, work for it." },
           { name: "Cindy", fullName: "Cindy Fabiola K.", role: "Training & Development", photo: "/image/Cindy - training & development.jpg", bio: "Tetap Semangat." },
-          { name: "Jevera", fullName: "Matthew Jevera", role: "Training & Development", photo: "/image/Jevera - training & development.jpg", bio: "Dream big, work hard." }
+          { name: "Jevera", fullName: "Matthew Jevera", role: "Training & Development", photo: "/image/Jevera - Training & Development.jpg", bio: "Dream big, work hard." }
         ]
       }
     };

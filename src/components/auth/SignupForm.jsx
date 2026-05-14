@@ -10,11 +10,11 @@ export default function SignupForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
-    name: "",
+    nickname: "",
     email: "",
-    phone: "",
+    phone_number: "",
     password: "",
-    confirmPassword: "",
+    password_confirmation: "",
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -25,7 +25,7 @@ export default function SignupForm() {
     const { name, value } = e.target;
 
     // KHUSUS PHONE: hanya angka
-    if (name === "phone") {
+    if (name === "phone_number") {
       const onlyNumbers = value.replace(/[^0-9]/g, "");
       setFormData(prev => ({
         ...prev,
@@ -52,7 +52,7 @@ export default function SignupForm() {
 
     // VALIDASI NOMOR TELEPON
     const phoneRegex = /^[0-9]+$/;
-    if (!phoneRegex.test(formData.phone)) {
+    if (!phoneRegex.test(formData.phone_number)) {
       setError("Nomor telepon hanya boleh angka");
       return;
     }
@@ -64,7 +64,7 @@ export default function SignupForm() {
     }
 
     // VALIDASI CONFIRM PASSWORD
-    if (formData.password !== formData.confirmPassword) {
+    if (formData.password !== formData.password_confirmation) {
       setError("Password tidak cocok!");
       return;
     }
@@ -82,98 +82,89 @@ export default function SignupForm() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-sky-50 flex items-center justify-center pt-20 pb-8 px-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-white flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 font-sans">
+      <div className="w-full max-w-md space-y-10">
+        
         {/* Header */}
-        <div className="mb-8 text-center">
-          <Link href="/" className="inline-flex items-center text-cyan-600 hover:text-cyan-700 mb-6 transition-colors">
-            <ArrowLeft className="w-5 h-5 mr-2" />
-            Kembali ke Beranda
+        <div className="text-center">
+          <Link href="/" className="inline-flex items-center text-xs uppercase tracking-widest text-zinc-400 hover:text-cyan-600 mb-10 transition-colors duration-300">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Kembali
           </Link>
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-800 mb-2">
-            Buat Akun
+          <h1 className="text-4xl sm:text-5xl tracking-tighter font-light text-zinc-900 mb-3">
+            Create account.
           </h1>
-          <p className="text-gray-600 text-sm sm:text-base">
+          <p className="text-zinc-500 font-light text-sm sm:text-base">
             Bergabunglah dengan Arthakara hari ini
           </p>
         </div>
 
-        {/* Signup Card */}
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 sm:p-8">
+        {/* Form Container */}
+        <div className="mt-10">
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-red-700 text-sm font-medium">{error}</p>
+            <div className="mb-8 p-4 bg-zinc-50 border-l-2 border-red-500">
+              <p className="text-red-700 text-sm font-medium tracking-wide">{error}</p>
             </div>
           )}
-          <form onSubmit={handleSignup} className="space-y-4 sm:space-y-5">
-
-            {/* Name */}
-            <div>
-              <label className="block text-gray-700 font-medium mb-2 text-sm sm:text-base">
+          <form onSubmit={handleSignup} className="space-y-8">
+            
+            {/* Name Input */}
+            <div className="relative group">
+              <label className="block text-xs uppercase tracking-widest text-zinc-400 font-semibold mb-2 transition-colors group-focus-within:text-cyan-600">
                 Nama Lengkap
               </label>
-              <div className="relative">
-                <User className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  className="w-full pl-12 pr-4 text-black py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-100 transition-all text-sm sm:text-base"
-                  placeholder="Nama Anda"
-                  required
-                />
-              </div>
+              <input
+                type="text"
+                name="nickname"
+                value={formData.nickname}
+                onChange={handleChange}
+                className="w-full bg-transparent border-0 border-b border-zinc-200 py-3 px-0 text-zinc-900 focus:ring-0 focus:border-cyan-600 outline-none focus:outline-none transition-colors placeholder-zinc-300 text-base"
+                placeholder="John Doe"
+                required
+              />
             </div>
 
-            {/* Email */}
-            <div>
-              <label className="block text-gray-700 font-medium mb-2 text-sm sm:text-base">
-                Email
+            {/* Email Input */}
+            <div className="relative group">
+              <label className="block text-xs uppercase tracking-widest text-zinc-400 font-semibold mb-2 transition-colors group-focus-within:text-cyan-600">
+                Email Address
               </label>
-              <div className="relative">
-                <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  pattern="^[^\s@]+@[^\s@]+\.com$"
-                  className="w-full pl-12 pr-4 py-3 border text-gray-600 border-gray-200 rounded-xl focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-100 transition-all text-sm sm:text-base"
-                  placeholder="email@example.com"
-                  required
-                />
-              </div>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                pattern="^[^\s@]+@[^\s@]+\.com$"
+                className="w-full bg-transparent border-0 border-b border-zinc-200 py-3 px-0 text-zinc-900 focus:ring-0 focus:border-cyan-600 outline-none focus:outline-none transition-colors placeholder-zinc-300 text-base"
+                placeholder="hello@example.com"
+                required
+              />
             </div>
 
-            {/* Phone */}
-            <div>
-              <label className="block text-gray-700 font-medium mb-2 text-sm sm:text-base">
+            {/* Phone Input */}
+            <div className="relative group">
+              <label className="block text-xs uppercase tracking-widest text-zinc-400 font-semibold mb-2 transition-colors group-focus-within:text-cyan-600">
                 Nomor Telepon
               </label>
-              <div className="relative">
-                <Phone className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  className="w-full pl-12 pr-4 py-3 text-gray-600 border border-gray-200 rounded-xl focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-100 transition-all text-sm sm:text-base"
-                  placeholder="+62 8xx xxxx xxxx"
-                  required
-                />
-              </div>
+              <input
+                type="tel"
+                name="phone_number"
+                value={formData.phone_number}
+                onChange={handleChange}
+                inputMode="numeric"
+                pattern="[0-9]*"
+                className="w-full bg-transparent border-0 border-b border-zinc-200 py-3 px-0 text-zinc-900 focus:ring-0 focus:border-cyan-600 outline-none focus:outline-none transition-colors placeholder-zinc-300 text-base"
+                placeholder="08123456789"
+                required
+              />
             </div>
 
-            {/* Password */}
-            <div>
-              <label className="block text-gray-700 font-medium mb-2 text-sm sm:text-base">
+            {/* Password Input */}
+            <div className="relative group">
+              <label className="block text-xs uppercase tracking-widest text-zinc-400 font-semibold mb-2 transition-colors group-focus-within:text-cyan-600">
                 Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                   type={showPassword ? "text" : "password"}
                   name="password"
@@ -181,66 +172,101 @@ export default function SignupForm() {
                   onChange={handleChange}
                   minLength={8}
                   maxLength={12}
-                  className="w-full pl-12 text-gray-700 pr-12 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-100 transition-all text-sm sm:text-base"
+                  className="w-full bg-transparent border-0 border-b border-zinc-200 py-3 px-0 text-zinc-900 focus:ring-0 focus:border-cyan-600 outline-none focus:outline-none transition-colors placeholder-zinc-300 text-base"
                   placeholder="••••••••"
                   required
                 />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400">
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-0 top-1/2 transform -translate-y-1/2 text-zinc-300 hover:text-cyan-600 transition-colors"
+                  aria-label="Toggle password visibility"
+                >
+                  {showPassword ? (
+                    <EyeOff className="w-4 h-4" />
+                  ) : (
+                    <Eye className="w-4 h-4" />
+                  )}
                 </button>
               </div>
             </div>
 
-            {/* Confirm Password */}
-            <div>
-              <label className="block text-gray-700 font-medium mb-2 text-sm sm:text-base">
+            {/* Confirm Password Input */}
+            <div className="relative group">
+              <label className="block text-xs uppercase tracking-widest text-zinc-400 font-semibold mb-2 transition-colors group-focus-within:text-cyan-600">
                 Konfirmasi Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                   type={showConfirmPassword ? "text" : "password"}
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
+                  name="password_confirmation"
+                  value={formData.password_confirmation}
                   onChange={handleChange}
                   minLength={8}
                   maxLength={12}
-                  className="w-full pl-12 text-gray-700 pr-12 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-100 transition-all text-sm sm:text-base"
+                  className="w-full bg-transparent border-0 border-b border-zinc-200 py-3 px-0 text-zinc-900 focus:ring-0 focus:border-cyan-600 outline-none focus:outline-none transition-colors placeholder-zinc-300 text-base"
                   placeholder="••••••••"
                   required
                 />
-                <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400">
-                  {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-0 top-1/2 transform -translate-y-1/2 text-zinc-300 hover:text-cyan-600 transition-colors"
+                  aria-label="Toggle confirm password visibility"
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="w-4 h-4" />
+                  ) : (
+                    <Eye className="w-4 h-4" />
+                  )}
                 </button>
               </div>
             </div>
 
             {/* Terms */}
-            <label className="flex items-start text-gray-600 cursor-pointer text-xs sm:text-sm">
-              <input type="checkbox" className="w-4 h-4 mt-1 accent-cyan-600" required />
-              <span className="ml-2">
-                Saya setuju dengan <Link href="#" className="text-cyan-600">Syarat & Ketentuan</Link>
-              </span>
-            </label>
+            <div className="flex items-start pt-2">
+              <label className="flex items-start text-zinc-500 cursor-pointer group">
+                <div className="relative flex items-center justify-center w-4 h-4 mt-0.5 mr-3 border border-zinc-300 group-hover:border-cyan-600 transition-colors flex-shrink-0">
+                  <input
+                    type="checkbox"
+                    className="absolute opacity-0 w-full h-full cursor-pointer peer"
+                    required
+                  />
+                  <div className="w-2 h-2 bg-cyan-600 opacity-0 peer-checked:opacity-100 transition-opacity"></div>
+                </div>
+                <span className="text-sm font-light leading-relaxed group-hover:text-cyan-600 transition-colors">
+                  Saya setuju dengan <Link href="#" className="font-medium underline decoration-1 underline-offset-4">Syarat & Ketentuan</Link>
+                </span>
+              </label>
+            </div>
 
-            {/* Button */}
+            {/* Signup Button */}
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3 bg-gradient-to-r from-cyan-500 to-sky-500 text-white font-semibold rounded-xl mt-6"
+              className="w-full py-4 mt-4 bg-cyan-600 text-white text-xs uppercase tracking-widest font-semibold hover:bg-cyan-700 active:scale-[0.98] disabled:bg-zinc-200 disabled:text-zinc-400 disabled:scale-100 transition-all duration-300"
             >
-              {isLoading ? "Sedang mendaftar..." : "Buat Akun"}
+              {isLoading ? "Creating Account..." : "Create Account"}
             </button>
           </form>
 
-          <p className="text-center text-gray-600 text-sm mt-8">
-            Sudah punya akun? <Link href="/login" className="text-cyan-600 font-semibold">Masuk di sini</Link>
-          </p>
+          {/* Login Link */}
+          <div className="mt-12 text-center">
+            <p className="text-zinc-500 text-sm font-light">
+              Sudah punya akun?{" "}
+              <Link
+                href="/login"
+                className="text-cyan-600 font-medium hover:underline decoration-1 underline-offset-4 transition-all"
+              >
+                Masuk di sini
+              </Link>
+            </p>
+            <p className="mt-4 text-xs font-light text-zinc-400">
+              Kami tidak akan pernah membagikan data Anda kepada pihak ketiga.
+            </p>
+          </div>
         </div>
 
-        <p className="text-center text-gray-500 text-xs mt-6">
-          Kami tidak akan pernah membagikan data Anda kepada pihak ketiga
-        </p>
       </div>
     </div>
   );

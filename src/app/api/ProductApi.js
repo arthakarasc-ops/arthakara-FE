@@ -1,4 +1,4 @@
-const BASE_URL = typeof window !== "undefined" ? "/api" : `${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"}/api`;
+const BASE_URL = "https://arthakara-api-production.up.railway.app/api";
 
 /*
 |------------------------------------------------------------------
@@ -7,9 +7,15 @@ const BASE_URL = typeof window !== "undefined" ? "/api" : `${process.env.NEXT_PU
 */
 const fetcher = async (url) => {
   try {
-    const res = await fetch(url);
+    const res = await fetch(url, {
+      headers: {
+        "Accept": "application/json",
+      },
+    });
 
     if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      console.error("Backend Error Detail:", errorData);
       throw new Error(`HTTP error! status: ${res.status}`);
     }
 

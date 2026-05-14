@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ShoppingBag } from "lucide-react";
 
 export default function ProductCard({ product, index = 0 }) {
+  const IMAGE_BASE_URL = "https://arthakara-api-production.up.railway.app";
   return (
     <Link href={`/products/${product.id}`} className="group block">
       <div className="flex flex-col h-full relative">
@@ -11,15 +12,16 @@ export default function ProductCard({ product, index = 0 }) {
         {/* IMAGE CONTAINER (Taller Aspect Ratio for Premium Feel) */}
         <div className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-slate-100 mb-5">
           
-          {/* BADGE (Example logic for visual dynamic, e.g., every 3rd item is exclusive) */}
-          {index % 3 === 0 && (
-            <div className="absolute top-4 left-4 z-20 bg-slate-900/80 backdrop-blur-md text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full">
-              Eksklusif
-            </div>
-          )}
+
 
           <img
-            src={product.usage_image || "/no-image.png"}
+            src={
+              product.usage_image
+                ? product.usage_image.startsWith("http")
+                  ? product.usage_image
+                  : `${IMAGE_BASE_URL}/storage/${product.usage_image}`
+                : "/no-image.png"
+            }
             alt={product.name}
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
           />

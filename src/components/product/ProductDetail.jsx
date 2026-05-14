@@ -10,6 +10,8 @@ export default function ProductDetail() {
   const { id } = useParams();
   const router = useRouter();
   const { addItem, loading: cartLoading } = useCart();
+  const BASE_URL = "https://arthakara-api-production.up.railway.app/api";
+  const IMAGE_BASE_URL = "https://arthakara-api-production.up.railway.app";
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -128,7 +130,7 @@ export default function ProductDetail() {
       product_id: product.id,
       product_variant_id: selectedVariant.id,
       scents: JSON.stringify(selectedScents.map((s) => s.id)),
-      scentDetails: JSON.stringify(selectedScents.map((s) => ({ id: s.id, name: s.name, price: s.price }))),
+      scentDetails: JSON.stringify(selectedScents.map((s) => ({ id: s.id, name: s.name, extra_price: s.extra_price }))),
       name: product.name,
       price: (product.price + scentExtraTotal), // Update price with scents
       quantity: quantity,
@@ -186,7 +188,13 @@ export default function ProductDetail() {
                 <div className="w-full lg:w-1/2 p-4 sm:p-8 border-b lg:border-b-0 lg:border-r border-slate-100 bg-slate-50/50">
                     <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-slate-100">
                         <img
-                            src={product?.usage_image || "/no-image.png"}
+                            src={
+                              product?.usage_image
+                                ? product.usage_image.startsWith("http")
+                                  ? product.usage_image
+                                  : `${IMAGE_BASE_URL}/storage/${product.usage_image}`
+                                : "/no-image.png"
+                            }
                             alt={product?.name}
                             className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
                         />
@@ -251,15 +259,6 @@ export default function ProductDetail() {
                                                     : "border-slate-200 bg-white hover:border-cyan-400 hover:shadow-sm"
                                             }`}
                                     >
-                                        {/* Color Swatch */}
-                                        {v.color_hex && (
-                                            <span
-                                                className="w-5 h-5 rounded-full border border-slate-200 shadow-sm relative flex items-center justify-center"
-                                                style={{ backgroundColor: v.color_hex }}
-                                            >
-                                                {isSelected && <Check size={12} className={v.color_hex.toLowerCase() === '#ffffff' ? 'text-slate-900' : 'text-white'} />}
-                                            </span>
-                                        )}
                                         <span className={`text-sm font-medium ${isSelected ? 'text-cyan-800' : isOutOfStock ? 'text-slate-400' : 'text-slate-700'}`}>
                                             {v.color || "No Color"}
                                         </span>

@@ -1,11 +1,28 @@
+import { Suspense } from "react";
 import ProductDetail from "@/components/product/ProductDetail";
 import Navbar from "@/components/ui/Navbar";
+
+export async function generateStaticParams() {
+  const res = await fetch('https://arthakara-api-production.up.railway.app/api/products', {
+    headers: { 'Accept': 'application/json' }
+  });
+  const products = await res.json();
+  
+  // Memastikan data adalah array (biasanya Laravel mengembalikan array langsung atau di dalam 'data')
+  const productsArray = Array.isArray(products) ? products : (products.data || []);
+
+  return productsArray.map((product) => ({
+    id: product.id.toString(),
+  }));
+}
 
 export default function Page() {
   return (
     <>
       <Navbar />
-      <ProductDetail />
+      <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+        <ProductDetail />
+      </Suspense>
     </>
   );
 }

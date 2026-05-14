@@ -1,9 +1,10 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/components/context/AuthContext";
 import { useCart } from "@/components/context/CartContext";
+import { getProvinces, getCities, getShippingCost } from "@/lib/api";
 
 const InputField = ({
   label,
@@ -57,22 +58,20 @@ export default function CheckoutPage() {
     phone_number: "",
   });
 
-  const [billing, setBilling] = useState({
-    first_name: "",
-    last_name: "",
-    address: "",
-    appartment_suite: "",
-    city: "",
-    province: "",
-    postal_code: "",
-    country: "Indonesia",
-    phone_number: "",
-  });
-
-  const [sameAsShipping, setSameAsShipping] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [orderResult, setOrderResult] = useState(null);
   const [orderType, setOrderType] = useState("delivery"); // 'delivery' | 'take_away'
+  const [tanggalLahir, setTanggalLahir] = useState("");
+
+  // States for RajaOngkir
+  const [provinces, setProvinces] = useState([]);
+  const [cities, setCities] = useState([]);
+  const [selectedProvince, setSelectedProvince] = useState("");
+  const [selectedCity, setSelectedCity] = useState("");
+  const [courier, setCourier] = useState("");
+  const [shippingCosts, setShippingCosts] = useState([]);
+  const [selectedService, setSelectedService] = useState(null);
+  const [isLoadingCost, setIsLoadingCost] = useState(false);
 
   // Menentukan items yang akan di-checkout
   const checkoutItems = directBuyData 
@@ -97,17 +96,74 @@ export default function CheckoutPage() {
         subtotal: item.subtotal
       }));
 
-  const totalAmount = checkoutItems.reduce((sum, item) => sum + item.subtotal, 0);
+  // Hitung total berat, asumsikan 500 gram per produk karena produk Arvena Shell (termasuk packing)
+  const totalWeight = checkoutItems.reduce((sum, item) => sum + (item.quantity * 500), 0);
+  
+  const subTotalAmount = checkoutItems.reduce((sum, item) => sum + item.subtotal, 0);
+  const shippingAmount = selectedService ? selectedService.cost : 0;
+  const totalAmount = subTotalAmount + shippingAmount;
 
-  // =========================
-  // HANDLER: Checkbox billing = shipping
-  // =========================
-  const handleSameAsShipping = (checked) => {
-    setSameAsShipping(checked);
-    if (checked) {
-      setBilling({ ...shipping });
+  // Fetch Provinces
+  useEffect(() => {
+    const loadProvinces = async () => {
+      const res = await getProvinces();
+      if (res.isSuccess) setProvinces(res.data);
+    };
+    loadProvinces();
+  }, []);
+
+  // Fetch Cities when province changes
+  useEffect(() => {
+    if (!selectedProvince) {
+      setCities([]);
+      setSelectedCity("");
+      return;
     }
-  };
+    const loadCities = async () => {
+      const res = await getCities(selectedProvince);
+      if (res.isSuccess) setCities(res.data);
+    };
+    loadCities();
+    
+    const provName = provinces.find(p => p.id == selectedProvince)?.name || "";
+    setShipping(prev => ({ ...prev, province: provName }));
+  }, [selectedProvince, provinces]);
+
+  // Update shipping city name when selectedCity changes
+  useEffect(() => {
+    const cityName = cities.find(c => c.id == selectedCity)?.name || "";
+    setShipping(prev => ({ ...prev, city: cityName }));
+  }, [selectedCity, cities]);
+
+  // Fetch Shipping Costs
+  useEffect(() => {
+    if (orderType !== "delivery") return;
+    if (!selectedCity || !courier) {
+      setShippingCosts([]);
+      setSelectedService(null);
+      return;
+    }
+
+    const loadCost = async () => {
+      setIsLoadingCost(true);
+      setSelectedService(null);
+      const res = await getShippingCost({
+        destination: selectedCity,
+        weight: totalWeight > 0 ? totalWeight : 500, // min 500 gram
+        courier: courier
+      });
+      if (res.isSuccess) {
+        setShippingCosts(res.data);
+      } else {
+        setShippingCosts([]);
+      }
+      setIsLoadingCost(false);
+    };
+    loadCost();
+  }, [selectedCity, courier, totalWeight, orderType]);
+
+
+
 
   // =========================
   // HANDLER: Buat Order → Bayar Midtrans
@@ -124,15 +180,18 @@ export default function CheckoutPage() {
     }
 
     // Validasi form berdasarkan tipe order
+    if (!tanggalLahir) {
+      return alert("Harap isi Tanggal Lahir.");
+    }
+    
     if (orderType === 'delivery') {
-      // Validasi lengkap untuk Delivery
-      if (!shipping.first_name.trim() || !shipping.last_name.trim() || !shipping.address.trim() || !shipping.city.trim() || !shipping.province.trim() || !shipping.postal_code.trim() || !shipping.phone_number.trim()) {
-        return alert("Harap lengkapi semua field alamat pengiriman.");
+      if (!selectedProvince || !selectedCity || !courier || !selectedService) {
+        return alert("Harap lengkapi opsi pengiriman (Provinsi, Kota, Kurir, dan Layanan).");
       }
 
-      const billingData = sameAsShipping ? shipping : billing;
-      if (!billingData.first_name.trim() || !billingData.last_name.trim() || !billingData.address.trim() || !billingData.city.trim() || !billingData.province.trim() || !billingData.postal_code.trim() || !billingData.phone_number.trim()) {
-        return alert("Harap lengkapi semua field alamat penagihan.");
+      // Validasi lengkap untuk Delivery
+      if (!shipping.first_name.trim() || !shipping.last_name.trim() || !shipping.address.trim() || !shipping.postal_code.trim() || !shipping.phone_number.trim()) {
+        return alert("Harap lengkapi semua field alamat pengiriman.");
       }
     } else {
       // Validasi khusus Take Away (Hanya butuh nama dan nomor telepon)
@@ -149,18 +208,21 @@ export default function CheckoutPage() {
         ? { ...shipping, address: "Take Away", city: "Take Away", province: "Take Away", postal_code: "00000", country: "Indonesia" }
         : shipping;
         
-      // Untuk Take Away, salin data shipping ke billing (karena form billing disembunyikan & state-nya kosong)
-      const finalBilling = orderType === "take_away"
-        ? { ...finalShipping }
-        : (sameAsShipping ? finalShipping : billing);
+      // Salin otomatis alamat pengiriman ke alamat penagihan
+      const finalBilling = { ...finalShipping };
 
       // ============================================
       // STEP 1: Buat Order di backend
       // ============================================
       const payload = {
+        tanggal_lahir: tanggalLahir,
         shipping_address: finalShipping,
         billing_address: finalBilling,
         shipping_method_id: orderType === "take_away" ? 4 : 1, // ID 4 = Take Away, ID 1 = Regular/Delivery
+        courier_code: orderType === "take_away" ? null : courier,
+        courier_service: orderType === "take_away" ? null : selectedService?.service,
+        shipping_cost: orderType === "take_away" ? null : selectedService?.cost,
+        destination_city_id: orderType === "take_away" ? null : selectedCity,
         items: checkoutItems.map(item => ({
           product_variant_id: item.product_variant_id,
           quantity: item.quantity,
@@ -168,7 +230,7 @@ export default function CheckoutPage() {
         })),
       };
 
-      const orderRes = await fetch("/api/orders/create", {
+      const orderRes = await fetch("https://arthakara-api-production.up.railway.app/api/orders/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -201,7 +263,7 @@ export default function CheckoutPage() {
       // ============================================
       // STEP 2: Minta Snap Token dari backend
       // ============================================
-      const payRes = await fetch("/api/pay", {
+      const payRes = await fetch("https://arthakara-api-production.up.railway.app/api/pay", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -301,63 +363,109 @@ export default function CheckoutPage() {
             <div className="mb-3">
               <InputField label="No. Telepon" type="tel" value={shipping.phone_number} onChange={(e) => setShipping({ ...shipping, phone_number: e.target.value.replace(/[^0-9]/g, '') })} placeholder="08123456789" />
             </div>
+            
+            <div className="mb-3">
+              <InputField label="Tanggal Lahir" type="date" value={tanggalLahir} onChange={(e) => setTanggalLahir(e.target.value)} />
+            </div>
 
             {orderType === 'delivery' && (
               <>
                 <InputField label="Alamat Lengkap" value={shipping.address} onChange={(e) => setShipping({ ...shipping, address: e.target.value })} placeholder="Jl. Contoh No. 123" />
                 <InputField label="Apartemen/Suite" value={shipping.appartment_suite} onChange={(e) => setShipping({ ...shipping, appartment_suite: e.target.value })} placeholder="Opsional" required={false} />
-                <div className="grid grid-cols-2 gap-3">
-                  <InputField label="Kota" value={shipping.city} onChange={(e) => setShipping({ ...shipping, city: e.target.value })} placeholder="Jakarta" />
-                  <InputField label="Provinsi" value={shipping.province} onChange={(e) => setShipping({ ...shipping, province: e.target.value })} placeholder="DKI Jakarta" />
+                
+                {/* RajaOngkir Selection */}
+                <div className="grid grid-cols-2 gap-3 mb-4">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                      Provinsi <span className="text-red-500">*</span>
+                    </label>
+                    <select 
+                      value={selectedProvince} 
+                      onChange={(e) => setSelectedProvince(e.target.value)}
+                      className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-cyan-500 text-slate-900 font-medium"
+                    >
+                      <option value="">Pilih Provinsi</option>
+                      {provinces.map(prov => (
+                        <option key={prov.id} value={prov.id}>{prov.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                      Kota/Kabupaten <span className="text-red-500">*</span>
+                    </label>
+                    <select 
+                      value={selectedCity} 
+                      onChange={(e) => setSelectedCity(e.target.value)}
+                      disabled={!selectedProvince}
+                      className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-cyan-500 text-slate-900 font-medium disabled:bg-slate-50"
+                    >
+                      <option value="">Pilih Kota</option>
+                      {cities.map(city => (
+                        <option key={city.id} value={city.id}>{city.name}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
-                <div className="grid grid-cols-2 gap-3">
+
+                <div className="mb-4">
                   <InputField label="Kode Pos" value={shipping.postal_code} onChange={(e) => setShipping({ ...shipping, postal_code: e.target.value })} placeholder="12345" />
                 </div>
+
+                {/* Courier Selection */}
+                {selectedCity && (
+                  <div className="mb-6">
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                      Pilih Kurir <span className="text-red-500">*</span>
+                    </label>
+                    <div className="grid grid-cols-3 gap-3">
+                      {['jne', 'tiki', 'pos'].map(c => (
+                        <label key={c} className={`flex items-center justify-center p-3 rounded-xl border-2 cursor-pointer transition-all uppercase font-bold text-sm ${courier === c ? 'border-cyan-600 bg-cyan-50 text-cyan-800' : 'border-slate-200 text-slate-500 hover:border-cyan-200 hover:bg-slate-50'}`}>
+                          <input type="radio" name="courier" value={c} checked={courier === c} onChange={(e) => setCourier(e.target.value)} className="hidden" />
+                          {c}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Shipping Services List */}
+                {isLoadingCost && <div className="text-sm text-cyan-600 mb-4 animate-pulse">Menghitung ongkos kirim...</div>}
+                
+                {shippingCosts && shippingCosts.length > 0 && !isLoadingCost && (
+                  <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
+                      Layanan Pengiriman <span className="text-red-500">*</span>
+                    </label>
+                    <div className="space-y-2">
+                      {shippingCosts.map((service, idx) => (
+                        <label key={idx} className={`flex justify-between items-center p-3 rounded-lg border cursor-pointer transition-all ${selectedService?.service === service.service ? 'border-cyan-500 bg-white ring-1 ring-cyan-500' : 'border-slate-200 bg-white hover:border-cyan-300'}`}>
+                          <div className="flex items-center gap-3">
+                            <input 
+                              type="radio" 
+                              name="service" 
+                              checked={selectedService?.service === service.service} 
+                              onChange={() => setSelectedService(service)}
+                              className="text-cyan-600 focus:ring-cyan-500"
+                            />
+                            <div>
+                              <div className="font-bold text-sm text-slate-800">{service.service}</div>
+                              <div className="text-xs text-slate-500">{service.description} (Estimasi {service.etd} hari)</div>
+                            </div>
+                          </div>
+                          <div className="font-bold text-cyan-600 text-sm">
+                            Rp {service.cost.toLocaleString("id-ID")}
+                          </div>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </>
             )}
           </div>
 
-          {/* BILLING ADDRESS (Hanya muncul jika Delivery) */}
-          {orderType === 'delivery' && (
-            <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
-                <h2 className="text-xl font-bold text-slate-900 flex items-center gap-3">
-                  <span className="w-8 h-8 rounded-full bg-cyan-50 text-cyan-600 flex items-center justify-center text-sm font-bold border border-cyan-100">3</span>
-                  Alamat Penagihan
-                </h2>
-                <label className="flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-600 bg-slate-50 px-4 py-2 rounded-lg border border-slate-200 hover:bg-slate-100 transition-colors">
-                  <input
-                    type="checkbox"
-                    checked={sameAsShipping}
-                    onChange={(e) => handleSameAsShipping(e.target.checked)}
-                    className="rounded text-cyan-600 focus:ring-cyan-500 border-slate-300 w-4 h-4"
-                  />
-                  Sama dengan pengiriman
-                </label>
-              </div>
 
-              {!sameAsShipping && (
-                <>
-                  <div className="grid grid-cols-2 gap-3">
-                    <InputField label="Nama Depan" value={billing.first_name} onChange={(e) => setBilling({ ...billing, first_name: e.target.value })} placeholder="John" />
-                    <InputField label="Nama Belakang" value={billing.last_name} onChange={(e) => setBilling({ ...billing, last_name: e.target.value })} placeholder="Doe" />
-                  </div>
-                  <div className="mb-3">
-                    <InputField label="No. Telepon" type="tel" value={billing.phone_number} onChange={(e) => setBilling({ ...billing, phone_number: e.target.value.replace(/[^0-9]/g, '') })} placeholder="08123456789" />
-                  </div>
-                  <InputField label="Alamat" value={billing.address} onChange={(e) => setBilling({ ...billing, address: e.target.value })} placeholder="Jl. Contoh No. 123" />
-                  <InputField label="Apartemen/Suite" value={billing.appartment_suite} onChange={(e) => setBilling({ ...billing, appartment_suite: e.target.value })} placeholder="Opsional" required={false} />
-                  <div className="grid grid-cols-2 gap-3">
-                    <InputField label="Kota" value={billing.city} onChange={(e) => setBilling({ ...billing, city: e.target.value })} placeholder="Jakarta" />
-                    <InputField label="Provinsi" value={billing.province} onChange={(e) => setBilling({ ...billing, province: e.target.value })} placeholder="DKI Jakarta" />
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <InputField label="Kode Pos" value={billing.postal_code} onChange={(e) => setBilling({ ...billing, postal_code: e.target.value })} placeholder="12345" />
-                  </div>
-                </>
-              )}
-            </div>
-          )}
         </div>
 
         {/* ==================== RIGHT: ORDER SUMMARY ==================== */}
@@ -380,8 +488,8 @@ export default function CheckoutPage() {
                       {item.scentDetails.map((scent, sIdx) => (
                         <div key={sIdx} className="flex justify-between text-xs text-slate-500">
                           <span className="truncate pr-2">+ {scent.name}</span>
-                          {Number(scent.price) > 0 ? (
-                            <span className="whitespace-nowrap font-medium text-slate-400">Rp {(Number(scent.price) * item.quantity).toLocaleString("id-ID")}</span>
+                          {Number(scent.extra_price) > 0 ? (
+                            <span className="whitespace-nowrap font-medium text-slate-400">Rp {(Number(scent.extra_price) * item.quantity).toLocaleString("id-ID")}</span>
                           ) : (
                             <span className="whitespace-nowrap font-medium text-slate-400">Gratis</span>
                           )}
@@ -395,9 +503,17 @@ export default function CheckoutPage() {
 
             <div className="space-y-3 mb-6">
               <div className="flex justify-between text-slate-500 text-sm">
-                <span>Subtotal</span>
-                <span className="font-medium text-slate-900">Rp {totalAmount.toLocaleString("id-ID")}</span>
+                <span>Subtotal ({totalWeight} gr)</span>
+                <span className="font-medium text-slate-900">Rp {subTotalAmount.toLocaleString("id-ID")}</span>
               </div>
+              
+              {orderType === 'delivery' && (
+                <div className="flex justify-between text-slate-500 text-sm">
+                  <span>Ongkos Kirim {selectedService ? `(${selectedService.service})` : ''}</span>
+                  <span className="font-medium text-slate-900">Rp {shippingAmount.toLocaleString("id-ID")}</span>
+                </div>
+              )}
+
               <div className="pt-4 mt-2 border-t border-slate-100 flex justify-between font-bold text-xl text-slate-900">
                 <span>Total</span>
                 <span className="text-cyan-600">Rp {totalAmount.toLocaleString("id-ID")}</span>
@@ -406,7 +522,7 @@ export default function CheckoutPage() {
 
             <button
               onClick={handleOrder}
-              disabled={isLoading}
+              disabled={isLoading || (orderType === 'delivery' && !selectedService)}
               className="w-full bg-cyan-600 text-white py-4 rounded-xl font-bold tracking-wide hover:bg-cyan-700 disabled:bg-slate-300 disabled:text-slate-500 disabled:cursor-not-allowed transition-all shadow-md shadow-cyan-600/20 active:scale-[0.98]"
             >
               {isLoading ? "Memproses..." : "Selesaikan Pembayaran"}

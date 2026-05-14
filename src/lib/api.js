@@ -1,4 +1,5 @@
-const BASE_URL = typeof window !== "undefined" ? "/api" : `${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"}/api`;
+const BASE_URL = "https://arthakara-api-production.up.railway.app/api";
+// const BASE_URL = "http://localhost:8000/api";
 
 export const registerUser = async (data) => {
   try {
@@ -6,6 +7,7 @@ export const registerUser = async (data) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "Accept": "application/json",
       },
       body: JSON.stringify(data),
     });
@@ -26,6 +28,7 @@ export const loginUser = async (data) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "Accept": "application/json",
       },
       body: JSON.stringify(data),
     });
@@ -65,6 +68,7 @@ export const getUser = async (token) => {
   const res = await fetch(`${BASE_URL}/users`, {
     headers: {
       Authorization: `Bearer ${token}`,
+      "Accept": "application/json",
     },
   });
 
@@ -178,6 +182,52 @@ export const getUserOrders = async (token) => {
     return { status: res.status, data: data.data || [] };
   } catch (error) {
     return { status: 500, data: [] };
+  }
+};
+
+/*
+|--------------------------------------------------------------------------
+| RAJAONGKIR API
+|--------------------------------------------------------------------------
+*/
+
+export const getProvinces = async () => {
+  try {
+    const res = await fetch(`${BASE_URL}/rajaongkir/provinces`);
+    const data = await res.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching provinces:", error);
+    return { data: [] };
+  }
+};
+
+export const getCities = async (provinceId) => {
+  try {
+    const res = await fetch(`${BASE_URL}/rajaongkir/cities?province=${provinceId}`);
+    const data = await res.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching cities:", error);
+    return { data: [] };
+  }
+};
+
+export const getShippingCost = async (payload) => {
+  try {
+    const res = await fetch(`${BASE_URL}/rajaongkir/cost`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching shipping cost:", error);
+    return { error: true, message: error.message };
   }
 };
 

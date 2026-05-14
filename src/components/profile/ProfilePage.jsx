@@ -99,8 +99,8 @@ export default function ProfilePage() {
     try {
       const formData = new FormData();
       formData.append("_method", "PUT"); // Laravel method spoofing
-      formData.append("full_name", editData.name || "");
-      formData.append("phone_number", editData.phone || "");
+      formData.append("full_name", (editData.name || "").trim());
+      formData.append("phone_number", (editData.phone || "").trim());
 
       if (avatarFile) {
         formData.append("avatar", avatarFile);
@@ -140,7 +140,7 @@ export default function ProfilePage() {
 
   const handleContinuePayment = async (orderId) => {
     try {
-      const payRes = await fetch("/api/pay", {
+      const payRes = await fetch("https://arthakara-api-production.up.railway.app/api/pay", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
