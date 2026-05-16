@@ -37,14 +37,26 @@ export default function CheckoutPage() {
   const { cartItems, cartTotal, clearAll } = useCart();
 
   // Data produk dari URL params (untuk Direct Buy)
-  const directBuyData = params.get("product_variant_id") ? {
-    product_id: params.get("product_id"),
-    product_variant_id: params.get("product_variant_id"),
-    name: params.get("name"),
-    price: Number(params.get("price")),
-    quantity: Number(params.get("quantity")),
-    scents: JSON.parse(params.get("scents") || "[]"),
-  } : null;
+  const directBuyItemsParam = params.get("direct_buy_items");
+  let directBuyItems = [];
+  try {
+      if (directBuyItemsParam) {
+          directBuyItems = JSON.parse(directBuyItemsParam);
+      } else if (params.get("product_variant_id")) {
+          // Fallback for old single direct buy links
+          directBuyItems = [{
+            product_variant_id: Number(params.get("product_variant_id")),
+            quantity: Number(params.get("quantity")),
+            scents: JSON.parse(params.get("scents") || "[]"),
+            scentDetails: JSON.parse(params.get("scentDetails") || "[]"),
+            name: params.get("name"),
+            price: Number(params.get("price")),
+            subtotal: Number(params.get("price")) * Number(params.get("quantity"))
+          }];
+      }
+  } catch (e) {
+      console.error("Failed to parse direct buy items", e);
+  }
 
   const [shipping, setShipping] = useState({
     first_name: "",
@@ -74,18 +86,8 @@ export default function CheckoutPage() {
   const [isLoadingCost, setIsLoadingCost] = useState(false);
 
   // Menentukan items yang akan di-checkout
-  const checkoutItems = directBuyData 
-    ? [
-        {
-          product_variant_id: Number(directBuyData.product_variant_id),
-          quantity: directBuyData.quantity,
-          scents: directBuyData.scents,
-          scentDetails: JSON.parse(params.get("scentDetails") || "[]"),
-          name: directBuyData.name,
-          price: directBuyData.price,
-          subtotal: directBuyData.price * directBuyData.quantity
-        }
-      ]
+  const checkoutItems = directBuyItems.length > 0
+    ? directBuyItems
     : cartItems.map(item => ({
         product_variant_id: item.product_variant_id,
         quantity: item.qty,
@@ -419,10 +421,14 @@ export default function CheckoutPage() {
                       Pilih Kurir <span className="text-red-500">*</span>
                     </label>
                     <div className="grid grid-cols-3 gap-3">
-                      {['jne', 'tiki', 'pos'].map(c => (
-                        <label key={c} className={`flex items-center justify-center p-3 rounded-xl border-2 cursor-pointer transition-all uppercase font-bold text-sm ${courier === c ? 'border-cyan-600 bg-cyan-50 text-cyan-800' : 'border-slate-200 text-slate-500 hover:border-cyan-200 hover:bg-slate-50'}`}>
-                          <input type="radio" name="courier" value={c} checked={courier === c} onChange={(e) => setCourier(e.target.value)} className="hidden" />
-                          {c}
+                      {[
+                        { code: 'jne', label: 'JNE' },
+                        { code: 'jnt', label: 'J&T' },
+                        { code: 'ide', label: 'ID Express' },
+                      ].map(c => (
+                        <label key={c.code} className={`flex items-center justify-center p-3 rounded-xl border-2 cursor-pointer transition-all font-bold text-sm ${courier === c.code ? 'border-cyan-600 bg-cyan-50 text-cyan-800' : 'border-slate-200 text-slate-500 hover:border-cyan-200 hover:bg-slate-50'}`}>
+                          <input type="radio" name="courier" value={c.code} checked={courier === c.code} onChange={(e) => setCourier(e.target.value)} className="hidden" />
+                          {c.label}
                         </label>
                       ))}
                     </div>

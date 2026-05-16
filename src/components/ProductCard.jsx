@@ -30,21 +30,22 @@ export default function ProductCard({ product, index = 0 }) {
           <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
           
           {/* FLOATING ACTION */}
-          <div className="absolute bottom-6 left-0 w-full flex justify-center opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 ease-out z-20">
-            <div className="bg-white/95 backdrop-blur-sm text-slate-900 px-6 py-3 rounded-full font-semibold text-sm shadow-xl flex items-center gap-2 hover:bg-cyan-600 hover:text-white transition-colors">
-              <ShoppingBag size={16} />
-              Lihat Detail
+          <div className="absolute bottom-4 sm:bottom-6 left-0 w-full flex justify-center opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 ease-out z-20 px-2">
+            <div className="bg-white/95 backdrop-blur-sm text-slate-900 px-3 py-2 sm:px-6 sm:py-3 rounded-full font-semibold text-xs sm:text-sm shadow-xl flex items-center gap-1.5 sm:gap-2 hover:bg-cyan-600 hover:text-white transition-colors">
+              <ShoppingBag size={14} className="sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">Lihat Detail</span>
+              <span className="sm:hidden">Detail</span>
             </div>
           </div>
         </div>
 
         {/* CONTENT INFO (Minimalist & Clean) */}
-        <div className="flex flex-col flex-grow px-2">
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-2">
-            <h3 className="font-bold text-lg text-slate-900 group-hover:text-cyan-600 transition-colors line-clamp-2 leading-snug">
+        <div className="flex flex-col flex-grow px-1 sm:px-2 mt-2 sm:mt-0">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-1 sm:gap-2 mb-1 sm:mb-2">
+            <h3 className="font-bold text-sm sm:text-lg text-slate-900 group-hover:text-cyan-600 transition-colors line-clamp-2 leading-tight sm:leading-snug">
               {product.name}
             </h3>
-            <span className="text-cyan-700 font-bold whitespace-nowrap">
+            <span className="text-cyan-700 font-bold text-xs sm:text-base whitespace-nowrap mt-1 sm:mt-0">
               Rp {Number(product.price || 0).toLocaleString("id-ID")}
             </span>
           </div>

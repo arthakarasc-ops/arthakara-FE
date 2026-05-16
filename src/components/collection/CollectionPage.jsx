@@ -1,11 +1,83 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Package, ShoppingBag } from "lucide-react";
-import { useEffect, useState } from "react";
+import { ArrowRight, ArrowLeft, Package, ChevronLeft, ChevronRight } from "lucide-react";
+import { useEffect, useState, useRef } from "react";
 import { getCollections } from "@/app/api/CollectionApi";
+import ProductCard from "@/components/ProductCard";
+import ProductSkeleton from "@/components/ProductSkeleton";
 
-export default function CollectionPage() {
+function ProductCarousel({ products, IMAGE_BASE_URL }) {
+  const scrollRef = useRef(null);
+  const [showArrows, setShowArrows] = useState(false);
+
+  const checkOverflow = () => {
+    if (scrollRef.current) {
+      const { scrollWidth, clientWidth } = scrollRef.current;
+      // Show arrows only if content overflows the container width
+      setShowArrows(scrollWidth > clientWidth);
+    }
+  };
+
+  useEffect(() => {
+    // Check initially and on resize
+    checkOverflow();
+    window.addEventListener('resize', checkOverflow);
+    return () => window.removeEventListener('resize', checkOverflow);
+  }, [products]);
+
+  const scroll = (direction) => {
+    if (scrollRef.current) {
+      const { scrollLeft, clientWidth } = scrollRef.current;
+      const scrollTo = direction === 'left' 
+        ? scrollLeft - clientWidth * 0.7 
+        : scrollLeft + clientWidth * 0.7;
+      
+      scrollRef.current.scrollTo({ left: scrollTo, behavior: 'smooth' });
+    }
+  };
+
+  return (
+    <div className="relative group/carousel px-4 -mx-4 sm:px-0 sm:mx-0">
+      {/* NAVIGATION ARROWS (Smart logic & Mobile friendly) */}
+      {showArrows && (
+        <button 
+          onClick={() => scroll('left')}
+          className="absolute left-2 sm:left-4 top-[40%] sm:top-[40%] -translate-y-1/2 z-30 bg-white/90 backdrop-blur-xl p-2 sm:p-3 rounded-full shadow-xl border border-slate-100 transition-all duration-300 -ml-2 sm:-ml-6 flex items-center justify-center hover:bg-cyan-600 hover:text-white hover:scale-110 active:scale-95"
+          aria-label="Scroll left"
+        >
+          <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={2.5} />
+        </button>
+      )}
+
+      {/* CAROUSEL CONTAINER */}
+      <div 
+        ref={scrollRef}
+        onScroll={checkOverflow}
+        className="flex items-stretch overflow-x-auto pb-8 gap-4 sm:gap-6 snap-x snap-mandatory scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+      >
+        {products.map((product) => (
+          <div key={product.id} className="snap-start flex-none w-[160px] sm:w-[220px] md:w-[240px]">
+            <ProductCard product={product} />
+          </div>
+        ))}
+      </div>
+
+      {/* RIGHT ARROW */}
+      {showArrows && (
+        <button 
+          onClick={() => scroll('right')}
+          className="absolute right-2 sm:right-4 top-[40%] sm:top-[40%] -translate-y-1/2 z-30 bg-white/90 backdrop-blur-xl p-2 sm:p-3 rounded-full shadow-xl border border-slate-100 transition-all duration-300 -mr-2 sm:-mr-6 flex items-center justify-center hover:bg-cyan-600 hover:text-white hover:scale-110 active:scale-95"
+          aria-label="Scroll right"
+        >
+          <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={2.5} />
+        </button>
+      )}
+    </div>
+  );
+}
+
+export default function CollectionPage({ slug }) {
   const [collections, setCollections] = useState([]);
   const [productsMap, setProductsMap] = useState({});
   const [loading, setLoading] = useState(true);
@@ -31,7 +103,13 @@ export default function CollectionPage() {
       const res = await getCollections();
 
       if (res.status === 200) {
-        const collectionsData = res.data;
+        let collectionsData = res.data;
+        
+        // Filter by slug if provided (for detail page)
+        if (slug) {
+          collectionsData = collectionsData.filter(col => col.slug === slug);
+        }
+        
         setCollections(collectionsData);
 
         const productData = {};
@@ -61,7 +139,6 @@ export default function CollectionPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
         {/* HEADER */}
         <div className="text-center mb-20">
-          <span className="text-cyan-600 font-medium tracking-widest text-sm uppercase mb-4 block">Katalog Kami</span>
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-slate-900 mb-6 tracking-tight">
             Koleksi <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 to-sky-500">Produk</span>
           </h1>
@@ -72,97 +149,82 @@ export default function CollectionPage() {
         
         {/* LOADING */}
         {loading ? (
-          <div className="flex justify-center items-center h-40">
-             <div className="w-12 h-12 border-4 border-cyan-200 border-t-cyan-600 rounded-full animate-spin"></div>
+          <div className="space-y-32">
+            {[...Array(3)].map((_, colIndex) => (
+              <div key={`col-skeleton-${colIndex}`} className="relative">
+                {/* COLLECTION HEADER SKELETON */}
+                <div className="mb-10 flex flex-col sm:flex-row sm:items-end justify-between gap-6 border-b border-slate-200 pb-8 animate-pulse">
+                  <div className="max-w-3xl w-full">
+                    <div className="flex items-center gap-4 mb-3">
+                      <div className="h-8 md:h-10 bg-slate-200 rounded-lg w-1/2"></div>
+                      <div className="h-6 w-16 bg-slate-200 rounded-full"></div>
+                    </div>
+                    <div className="h-5 bg-slate-200 rounded-md w-3/4"></div>
+                  </div>
+                  <div className="h-6 w-32 bg-slate-200 rounded-md"></div>
+                </div>
+
+                {/* PRODUCTS CAROUSEL SKELETON */}
+                <div className="flex overflow-hidden pb-8 gap-4 sm:gap-6">
+                  {[...Array(5)].map((_, prodIndex) => (
+                    <div key={`prod-skeleton-${prodIndex}`} className="flex-none w-[160px] sm:w-[220px] md:w-[240px]">
+                      <ProductSkeleton />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
         ) : (
-          <div className="space-y-24">
+          <div className="space-y-32">
 
-            {collections.map((collection, index) => (
+            {collections.map((collection) => (
               <div key={collection.id} className="relative">
 
                 {/* COLLECTION HEADER */}
-                <div className="mb-10 flex flex-col sm:flex-row sm:items-end justify-between gap-6 border-b border-slate-200 pb-6">
+                <div className="mb-10 flex flex-col sm:flex-row sm:items-end justify-between gap-6 border-b border-slate-200 pb-8">
                   <div className="max-w-3xl">
-                    <div className="flex items-center gap-3 mb-3">
-                      <h2 className="text-3xl md:text-4xl font-bold text-slate-900">
+                    <div className="flex items-center gap-4 mb-3">
+                      <h2 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">
                         {collection.name}
                       </h2>
-                      <span className="bg-cyan-100 text-cyan-700 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5">
+                      <span className="bg-cyan-100 text-cyan-700 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5">
                         <Package size={14} />
                         {productsMap[collection.id]?.length || 0}
                       </span>
                     </div>
-                    <p className="text-slate-600 text-lg">
+                    <p className="text-slate-500 text-lg">
                       {collection.description ?? "Eksplorasi rangkaian produk unggulan dari koleksi ini."}
                     </p>
                   </div>
 
-                  <Link href={`/collections/${collection.slug}`}>
-                    <button className="group flex items-center gap-2 text-cyan-600 hover:text-cyan-700 font-semibold transition-colors whitespace-nowrap">
-                      Lihat Koleksi
-                      <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
-                    </button>
-                  </Link>
-                </div>
-
-                {/* PRODUCTS GRID */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8">
-                  {productsMap[collection.id]?.length > 0 ? (
-                    productsMap[collection.id].slice(0, 4).map((product) => (
-                      <Link key={product.id} href={`/products/${product.id}`} className="group h-full">
-                        <div className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-500 overflow-hidden flex flex-col h-full border border-slate-100/50">
-                          
-                          {/* IMAGE */}
-                          <div className="relative h-64 overflow-hidden bg-slate-100">
-                            <img
-                              src={
-                                product.usage_image
-                                  ? product.usage_image.startsWith("http")
-                                    ? product.usage_image
-                                    : `${IMAGE_BASE_URL}/storage/${product.usage_image}`
-                                  : "/no-image.png"
-                              }
-                              alt={product.name}
-                              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                            />
-                            <div className="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/10 transition-colors duration-300"></div>
-                            
-                            {/* Hover Action */}
-                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                              <div className="bg-white/90 backdrop-blur-sm text-slate-900 px-4 py-2 rounded-full font-medium text-sm translate-y-4 group-hover:translate-y-0 transition-transform duration-300 shadow-lg flex items-center gap-2">
-                                <ShoppingBag size={16} /> Lihat Detail
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* CONTENT */}
-                          <div className="p-6 flex flex-col flex-grow">
-                            <h3 className="font-bold text-lg text-slate-900 group-hover:text-cyan-600 transition-colors line-clamp-1 mb-2">
-                              {product.title || product.name}
-                            </h3>
-                            
-                            <p className="text-slate-500 text-sm mb-4 line-clamp-2 flex-grow">
-                              {product.description || "Produk berkualitas tinggi dengan desain elegan."}
-                            </p>
-
-                            <div className="flex items-center justify-between mt-auto pt-4 border-t border-slate-100">
-                              <span className="text-slate-900 font-bold text-lg">
-                                Rp {Number(product.price).toLocaleString("id-ID")}
-                              </span>
-                            </div>
-                          </div>
-
-                        </div>
-                      </Link>
-                    ))
+                  {!slug ? (
+                    <Link href={`/collections/${collection.slug}`}>
+                      <button className="group flex items-center gap-2 text-cyan-600 hover:text-cyan-700 font-bold transition-colors whitespace-nowrap">
+                        Lihat Koleksi Lengkap
+                        <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                      </button>
+                    </Link>
                   ) : (
-                    <div className="col-span-full py-12 flex flex-col items-center justify-center text-slate-400 bg-slate-100/50 rounded-2xl border border-dashed border-slate-200">
-                      <Package size={48} className="mb-4 text-slate-300" />
-                      <p className="text-lg font-medium">Belum ada produk yang tersedia</p>
-                    </div>
+                    <Link href="/collections" className="group flex items-center gap-2 text-cyan-600 hover:text-cyan-700 font-bold transition-colors whitespace-nowrap">
+                      <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
+                      Kembali ke Koleksi
+                    </Link>
                   )}
                 </div>
+
+                {/* PRODUCTS CAROUSEL */}
+                {productsMap[collection.id]?.length > 0 ? (
+                  <ProductCarousel 
+                    products={productsMap[collection.id]} 
+                    IMAGE_BASE_URL={IMAGE_BASE_URL} 
+                  />
+                ) : (
+                  <div className="py-12 flex flex-col items-center justify-center text-slate-400 bg-white rounded-3xl border border-dashed border-slate-200">
+                    <Package size={48} className="mb-4 text-slate-300" />
+                    <p className="text-lg font-medium">Belum ada produk yang tersedia</p>
+                  </div>
+                )}
 
               </div>
             ))}

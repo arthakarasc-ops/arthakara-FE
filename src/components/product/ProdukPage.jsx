@@ -3,6 +3,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { fetchProducts } from "@/app/api/ProductApi";
 import ProductCard from "@/components/ProductCard";
+import ProductSkeleton from "@/components/ProductSkeleton";
 import { SlidersHorizontal, ChevronDown, Sparkles, Search, X } from "lucide-react";
 
 export default function ProdukPage() {
@@ -96,22 +97,22 @@ export default function ProdukPage() {
           </div>
 
           {/* FILTER / SORT ACTIONS */}
-          <div className="flex flex-col sm:flex-row items-end sm:items-center gap-4 relative">
+          <div className="flex flex-row items-center justify-end gap-2 sm:gap-4 relative">
             
             {/* SEARCH / FILTER INPUT */}
-            <div className={`flex items-center transition-all duration-300 overflow-hidden ${showFilterInput ? 'w-full sm:w-64 opacity-100' : 'w-0 opacity-0'}`}>
+            <div className={`flex items-center transition-all duration-300 overflow-hidden ${showFilterInput ? 'w-32 xs:w-40 sm:w-64 opacity-100' : 'w-0 opacity-0'}`}>
                <div className="relative w-full">
                  <input 
                    type="text" 
-                   placeholder="Cari produk..." 
+                   placeholder="Cari..." 
                    value={searchQuery}
                    onChange={(e) => setSearchQuery(e.target.value)}
-                   className="w-full pl-10 pr-4 py-2 rounded-full border border-slate-200 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 text-sm"
+                   className="w-full pl-8 pr-4 py-1.5 rounded-full border border-slate-200 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 text-xs sm:text-sm"
                  />
-                 <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                 <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
                  {searchQuery && (
-                   <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
-                     <X size={14} />
+                   <button onClick={() => setSearchQuery("")} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                     <X size={12} />
                    </button>
                  )}
                </div>
@@ -119,19 +120,19 @@ export default function ProdukPage() {
 
             <button 
               onClick={() => setShowFilterInput(!showFilterInput)}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-full border transition-all font-medium text-sm ${showFilterInput || searchQuery ? 'border-cyan-300 text-cyan-700 bg-cyan-50' : 'border-slate-200 text-slate-700 hover:border-cyan-300 hover:text-cyan-700 hover:bg-cyan-50'}`}
+              className={`flex items-center gap-1.5 px-3 py-2 sm:px-5 sm:py-2.5 rounded-full border transition-all font-medium text-xs sm:text-sm ${showFilterInput || searchQuery ? 'border-cyan-300 text-cyan-700 bg-cyan-50' : 'border-slate-200 text-slate-700 hover:border-cyan-300 hover:text-cyan-700 hover:bg-cyan-50'}`}
             >
-              <SlidersHorizontal size={16} />
-              Filter
+              <SlidersHorizontal size={14} className="sm:w-4 sm:h-4" />
+              <span>Filter</span>
             </button>
             
             <div className="relative">
               <button 
                 onClick={() => setShowSortMenu(!showSortMenu)}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-slate-200 text-slate-700 hover:border-cyan-300 hover:text-cyan-700 hover:bg-cyan-50 transition-all font-medium text-sm w-36 justify-between"
+                className="flex items-center gap-1.5 px-3 py-2 sm:px-5 sm:py-2.5 rounded-full border border-slate-200 text-slate-700 hover:border-cyan-300 hover:text-cyan-700 hover:bg-cyan-50 transition-all font-medium text-xs sm:text-sm w-28 sm:w-36 justify-between"
               >
                 <span className="truncate capitalize">{sortOrder === 'az' ? 'A - Z' : sortOrder === 'za' ? 'Z - A' : sortOrder}</span>
-                <ChevronDown size={16} className={`transition-transform duration-300 ${showSortMenu ? 'rotate-180' : ''}`} />
+                <ChevronDown size={14} className={`transition-transform duration-300 sm:w-4 sm:h-4 ${showSortMenu ? 'rotate-180' : ''}`} />
               </button>
 
               {/* DROPDOWN SORT */}
@@ -169,11 +170,13 @@ export default function ProdukPage() {
 
         {/* CONTENT */}
         {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="w-12 h-12 border-4 border-cyan-100 border-t-cyan-600 rounded-full animate-spin"></div>
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 sm:gap-x-8 gap-y-8 sm:gap-y-16">
+            {[...Array(8)].map((_, i) => (
+              <ProductSkeleton key={`skeleton-${i}`} />
+            ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-16">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 sm:gap-x-8 gap-y-8 sm:gap-y-16">
             {processedProducts.length > 0 ? (
               processedProducts.map((product, index) => (
                 <ProductCard key={product.id} product={product} index={index} />

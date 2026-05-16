@@ -115,7 +115,7 @@ export default function Navbar() {
               
               <button 
                 onClick={() => setIsSearchOpen(true)}
-                className={`transition-colors duration-300 ${getIconColor()}`}
+                className={`flex items-center transition-colors duration-300 ${getIconColor()}`}
               >
                 <Search size={20} strokeWidth={1.5} />
               </button>
@@ -145,11 +145,11 @@ export default function Navbar() {
                 </div>
               )}
 
-              <Link href="/cart" className="relative group">
-                <button className={`transition-colors duration-300 ${getIconColor()}`}>
-                  <ShoppingBag size={22} strokeWidth={1.5} />
+              <Link href="/cart" className="relative group flex items-center">
+                <button className={`flex items-center transition-colors duration-300 ${getIconColor()}`}>
+                  <ShoppingBag size={20} strokeWidth={1.5} className="translate-y-[1px]" />
                   {cartCount > 0 && (
-                    <span className="absolute -top-1.5 -right-2 bg-cyan-600 text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full border-2 border-white group-hover:scale-110 transition-transform shadow-sm">
+                    <span className="absolute -top-2 -right-2.5 bg-cyan-600 text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full border-2 border-white group-hover:scale-110 transition-transform shadow-sm">
                       {cartCount}
                     </span>
                   )}
@@ -167,11 +167,11 @@ export default function Navbar() {
                 <Search size={22} strokeWidth={1.5} />
               </button>
 
-              <Link href="/cart" className="relative">
-                <button className={`transition-colors duration-300 ${getIconColor()}`}>
-                  <ShoppingBag size={22} strokeWidth={1.5} />
+              <Link href="/cart" className="relative flex items-center">
+                <button className={`flex items-center transition-colors duration-300 ${getIconColor()}`}>
+                  <ShoppingBag size={22} strokeWidth={1.5} className="translate-y-[1px]" />
                   {cartCount > 0 && (
-                    <span className="absolute -top-1.5 -right-2 bg-cyan-600 text-white text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full">
+                    <span className="absolute -top-2 -right-2.5 bg-cyan-600 text-white text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full">
                       {cartCount}
                     </span>
                   )}
@@ -315,22 +315,7 @@ export default function Navbar() {
               <div className="col-span-full text-center py-12">
                 <p className="text-slate-400 font-medium italic">Produk tidak ditemukan...</p>
               </div>
-            ) : (
-              <div className="col-span-full">
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6">Mungkin Anda Mencari:</p>
-                <div className="flex flex-wrap gap-2">
-                  {["Black Ice", "Vanilla", "Lavender", "Fresh"].map((tag) => (
-                    <button 
-                      key={tag}
-                      onClick={() => setSearchQuery(tag)}
-                      className="px-4 py-2 bg-slate-50 border border-slate-100 rounded-full text-sm font-medium text-slate-600 hover:bg-cyan-50 hover:text-cyan-700 hover:border-cyan-200 transition-all"
-                    >
-                      {tag}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
+            ) : null}
           </div>
         </div>
       </div>

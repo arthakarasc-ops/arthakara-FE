@@ -72,8 +72,10 @@ export default function CollectionSection() {
 
         {/* LOADING */}
         {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="w-12 h-12 border-4 border-cyan-200 border-t-cyan-600 rounded-full animate-spin"></div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[...Array(3)].map((_, i) => (
+              <div key={`col-sec-skeleton-${i}`} className="h-[400px] rounded-3xl bg-slate-200 animate-pulse border border-slate-100"></div>
+            ))}
           </div>
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">

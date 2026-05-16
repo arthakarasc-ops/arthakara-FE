@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { useAuth } from "./AuthContext";
-import { getCart, addToCart, updateCartQty, removeFromCart, clearCart } from "@/lib/api";
+import { getCart, addToCart, addBulkToCart, updateCartQty, removeFromCart, clearCart } from "@/lib/api";
 
 const CartContext = createContext();
 
@@ -40,6 +40,24 @@ export const CartProvider = ({ children }) => {
 
     setLoading(true);
     const { status, data } = await addToCart(token, payload);
+    setLoading(false);
+
+    if (status === 200 || status === 201) {
+      fetchCart(); // Refresh cart
+      return { success: true, message: data.message };
+    } else {
+      return { success: false, error: data.error || "Gagal menambah ke keranjang" };
+    }
+  };
+
+  const addBulkItem = async (payload) => {
+    if (!isAuthenticated) {
+      alert("Silakan login terlebih dahulu untuk menambah ke keranjang.");
+      return { success: false, error: "Not authenticated" };
+    }
+
+    setLoading(true);
+    const { status, data } = await addBulkToCart(token, payload);
     setLoading(false);
 
     if (status === 200 || status === 201) {
@@ -104,6 +122,7 @@ export const CartProvider = ({ children }) => {
         cartTotal,
         fetchCart,
         addItem,
+        addBulkItem,
         updateQty,
         removeItem,
         clearAll,

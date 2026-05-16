@@ -13,11 +13,14 @@ export async function generateStaticParams() {
   }));
 }
 
-export default function CollectionDetail({ params }) {
+export default async function CollectionDetail({ params }) {
+  // Await params for Next.js 15 compatibility
+  const resolvedParams = await params;
+  
   return (
     <div className="bg-white min-h-screen">
       <Navbar />
-      <Collection slug={params.slug} />
+      <Collection slug={resolvedParams.slug} />
     </div>
   );
 }

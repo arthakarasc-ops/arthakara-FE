@@ -114,6 +114,24 @@ export const addToCart = async (token, payload) => {
   }
 };
 
+export const addBulkToCart = async (token, payload) => {
+  try {
+    const res = await fetch(`${BASE_URL}/cart/bulk`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+      },
+      body: JSON.stringify({ items: payload }), // backend expects 'items'
+    });
+    const data = await res.json();
+    return { status: res.status, data };
+  } catch (error) {
+    return { status: 500, data: { error: error.message } };
+  }
+};
+
 export const updateCartQty = async (token, cartId, qty) => {
   try {
     const res = await fetch(`${BASE_URL}/cart/${cartId}`, {
