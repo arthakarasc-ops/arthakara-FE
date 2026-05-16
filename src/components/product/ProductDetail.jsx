@@ -3,12 +3,15 @@
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { fetchProductDetail } from "@/app/api/ProductApi";
+import { useAuth } from "@/components/context/AuthContext";
 import { useCart } from "@/components/context/CartContext";
+import LoginModal from "@/components/ui/LoginModal";
 import { Check, Minus, Plus, ShoppingBag, ShoppingCart, ArrowRight, X, Copy } from "lucide-react";
 
 export default function ProductDetail() {
   const { id } = useParams();
   const router = useRouter();
+  const { token, isAuthenticated } = useAuth();
   const { addBulkItem, loading: cartLoading } = useCart();
   const BASE_URL = "https://arthakara.id/api";
   const IMAGE_BASE_URL = "https://arthakara.id";
@@ -23,6 +26,9 @@ export default function ProductDetail() {
   // WIZARD STATE
   const [showWizard, setShowWizard] = useState(false);
   const [configurations, setConfigurations] = useState([]); // Array of arrays
+
+  // MODAL STATE
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -130,6 +136,11 @@ export default function ProductDetail() {
         qty: config.qty
     }));
 
+    if (!isAuthenticated) {
+        setShowLoginModal(true);
+        return;
+    }
+
     setAddingToCart(true);
     const res = await addBulkItem(payload);
     setAddingToCart(false);
@@ -143,6 +154,11 @@ export default function ProductDetail() {
   };
 
   const handleBulkCheckout = () => {
+    if (!isAuthenticated) {
+        setShowLoginModal(true);
+        return;
+    }
+
     const isAllValid = configurations.every(c => c.length === 2);
     if (!isAllValid) return alert("Pastikan semua produk telah memiliki 2 pilihan wangi.");
 
@@ -449,6 +465,15 @@ export default function ProductDetail() {
             </div>
         </div>
       )}
+
+      {/* =========================
+          LOGIN MODAL OVERLAY
+      ========================= */}
+      <LoginModal 
+        isOpen={showLoginModal} 
+        onClose={() => setShowLoginModal(false)} 
+        redirectUrl={`/products/${id}`} 
+      />
     </div>
   );
 }

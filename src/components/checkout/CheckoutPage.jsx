@@ -36,6 +36,13 @@ export default function CheckoutPage() {
   const { token, isAuthenticated } = useAuth();
   const { cartItems, cartTotal, clearAll } = useCart();
 
+  // Proteksi: Redirect ke login jika belum terautentikasi
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push("/login?redirect=/checkout");
+    }
+  }, [isAuthenticated, router]);
+
   // Data produk dari URL params (untuk Direct Buy)
   const directBuyItemsParam = params.get("direct_buy_items");
   let directBuyItems = [];
@@ -423,7 +430,7 @@ export default function CheckoutPage() {
                     <div className="grid grid-cols-3 gap-3">
                       {[
                         { code: 'jne', label: 'JNE' },
-                        { code: 'pos', label: 'POS' },
+                        { code: 'jnt', label: 'J&T' },
                         { code: 'tiki', label: 'TIKI' },
                       ].map(c => (
                         <label key={c.code} className={`flex items-center justify-center p-3 rounded-xl border-2 cursor-pointer transition-all font-bold text-sm ${courier === c.code ? 'border-cyan-600 bg-cyan-50 text-cyan-800' : 'border-slate-200 text-slate-500 hover:border-cyan-200 hover:bg-slate-50'}`}>
