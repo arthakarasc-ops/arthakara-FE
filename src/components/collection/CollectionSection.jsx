@@ -13,7 +13,7 @@ export default function CollectionSection() {
     const fetchCollections = async () => {
       const res = await getCollections();
 
-      if (res.status === 200) {
+      if (res.status === 200 && Array.isArray(res.data)) {
         const collectionsData = res.data;
         
         // Fetch product count for each collection
@@ -33,6 +33,8 @@ export default function CollectionSection() {
         );
 
         setCollections(collectionsWithCounts);
+      } else {
+        setCollections([]);
       }
 
       setLoading(false);

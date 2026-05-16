@@ -16,8 +16,10 @@ export const CartProvider = ({ children }) => {
     if (!token) return;
     setLoading(true);
     const { status, data } = await getCart(token);
-    if (status === 200) {
+    if (status === 200 && Array.isArray(data)) {
       setCartItems(data);
+    } else {
+      setCartItems([]);
     }
     setLoading(false);
   };
@@ -90,8 +92,8 @@ export const CartProvider = ({ children }) => {
     }
   };
 
-  const cartCount = cartItems.reduce((sum, item) => sum + item.qty, 0);
-  const cartTotal = cartItems.reduce((sum, item) => sum + item.subtotal, 0);
+  const cartCount = (cartItems || []).reduce((sum, item) => sum + (item?.qty || 0), 0);
+  const cartTotal = (cartItems || []).reduce((sum, item) => sum + (item?.subtotal || 0), 0);
 
   return (
     <CartContext.Provider

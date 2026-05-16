@@ -4,12 +4,19 @@ export const setAuth = (token, user) => {
 };
 
 export const getToken = () => {
-  return localStorage.getItem("token");
+  const token = localStorage.getItem("token");
+  if (!token || token === "undefined" || token === "null") return null;
+  return token;
 };
 
 export const getUser = () => {
   const user = localStorage.getItem("user");
-  return user ? JSON.parse(user) : null;
+  if (!user || user === "undefined" || user === "null") return null;
+  try {
+    return JSON.parse(user);
+  } catch (e) {
+    return null;
+  }
 };
 
 export const logout = () => {
