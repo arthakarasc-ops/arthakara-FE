@@ -1,4 +1,4 @@
-const BASE_URL = "https://arthakara-api-production.up.railway.app/api";
+const BASE_URL = "https://arthakara.id/api";
 // const BASE_URL = "http://localhost:8000/api";
 
 export const registerUser = async (data) => {

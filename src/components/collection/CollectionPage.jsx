@@ -82,8 +82,8 @@ export default function CollectionPage({ slug }) {
   const [productsMap, setProductsMap] = useState({});
   const [loading, setLoading] = useState(true);
 
-  const BASE_URL = "https://arthakara-api-production.up.railway.app/api"; 
-  const IMAGE_BASE_URL = "https://arthakara-api-production.up.railway.app";
+  const BASE_URL = "https://arthakara.id/api"; 
+  const IMAGE_BASE_URL = "https://arthakara.id";
 
   // FETCH PRODUCTS PER COLLECTION
   const fetchProducts = async (collectionId) => {

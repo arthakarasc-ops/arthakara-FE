@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ShoppingBag } from "lucide-react";
 
 export default function ProductCard({ product, index = 0 }) {
-  const IMAGE_BASE_URL = "https://arthakara-api-production.up.railway.app";
+  const IMAGE_BASE_URL = "https://arthakara.id";
   return (
     <Link href={`/products/${product.id}`} className="group block">
       <div className="flex flex-col h-full relative">

@@ -232,7 +232,7 @@ export default function CheckoutPage() {
         })),
       };
 
-      const orderRes = await fetch("https://arthakara-api-production.up.railway.app/api/orders/create", {
+      const orderRes = await fetch("https://arthakara.id/api/orders/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -265,7 +265,7 @@ export default function CheckoutPage() {
       // ============================================
       // STEP 2: Minta Snap Token dari backend
       // ============================================
-      const payRes = await fetch("https://arthakara-api-production.up.railway.app/api/pay", {
+      const payRes = await fetch("https://arthakara.id/api/pay", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -423,8 +423,8 @@ export default function CheckoutPage() {
                     <div className="grid grid-cols-3 gap-3">
                       {[
                         { code: 'jne', label: 'JNE' },
-                        { code: 'jnt', label: 'J&T' },
-                        { code: 'ide', label: 'ID Express' },
+                        { code: 'pos', label: 'POS' },
+                        { code: 'tiki', label: 'TIKI' },
                       ].map(c => (
                         <label key={c.code} className={`flex items-center justify-center p-3 rounded-xl border-2 cursor-pointer transition-all font-bold text-sm ${courier === c.code ? 'border-cyan-600 bg-cyan-50 text-cyan-800' : 'border-slate-200 text-slate-500 hover:border-cyan-200 hover:bg-slate-50'}`}>
                           <input type="radio" name="courier" value={c.code} checked={courier === c.code} onChange={(e) => setCourier(e.target.value)} className="hidden" />

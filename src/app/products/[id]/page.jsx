@@ -3,7 +3,7 @@ import ProductDetail from "@/components/product/ProductDetail";
 import Navbar from "@/components/ui/Navbar";
 
 export async function generateStaticParams() {
-  const res = await fetch('https://arthakara-api-production.up.railway.app/api/products', {
+  const res = await fetch('https://arthakara.id/api/products', {
     headers: { 'Accept': 'application/json' }
   });
   const products = await res.json();

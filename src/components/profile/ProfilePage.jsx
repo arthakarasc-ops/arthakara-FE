@@ -140,7 +140,7 @@ export default function ProfilePage() {
 
   const handleContinuePayment = async (orderId) => {
     try {
-      const payRes = await fetch("https://arthakara-api-production.up.railway.app/api/pay", {
+      const payRes = await fetch("https://arthakara.id/api/pay", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

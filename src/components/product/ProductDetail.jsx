@@ -10,8 +10,8 @@ export default function ProductDetail() {
   const { id } = useParams();
   const router = useRouter();
   const { addBulkItem, loading: cartLoading } = useCart();
-  const BASE_URL = "https://arthakara-api-production.up.railway.app/api";
-  const IMAGE_BASE_URL = "https://arthakara-api-production.up.railway.app";
+  const BASE_URL = "https://arthakara.id/api";
+  const IMAGE_BASE_URL = "https://arthakara.id";
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
