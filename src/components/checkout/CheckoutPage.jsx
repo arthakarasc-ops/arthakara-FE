@@ -81,6 +81,7 @@ export default function CheckoutPage() {
   const [orderResult, setOrderResult] = useState(null);
   const [orderType, setOrderType] = useState("delivery"); // 'delivery' | 'take_away'
   const [tanggalLahir, setTanggalLahir] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("whatsapp"); // 'whatsapp' | 'midtrans'
 
   // States for RajaOngkir
   const [provinces, setProvinces] = useState([]);
@@ -260,8 +261,9 @@ export default function CheckoutPage() {
         return;
       }
 
-      const orderId = orderData.data?.order_id;
+      const orderId = orderData.data?.id || orderData.data?.order_id;
       if (!orderId) {
+        console.error("Order Data:", orderData);
         alert("Order berhasil tapi ID tidak ditemukan.");
         setIsLoading(false);
         return;
@@ -269,9 +271,35 @@ export default function CheckoutPage() {
 
       setOrderResult(orderData.data);
 
-      // ============================================
-      // STEP 2: Minta Snap Token dari backend
-      // ============================================
+      if (paymentMethod === "whatsapp") {
+        const waNumber = "6287784488639";
+        const totalFormatted = totalAmount.toLocaleString("id-ID");
+        const shippingFormatted = shippingAmount.toLocaleString("id-ID");
+        
+        const itemDetails = checkoutItems.map(item => `- ${item.name} (x${item.quantity})`).join('\n');
+        
+        let text = `Halo Arthakara, saya ingin melakukan konfirmasi pembayaran pesanan saya:\n\n`;
+        text += `*Order ID:* #${orderId}\n`;
+        text += `*Nama Pemesan:* ${finalShipping.first_name} ${finalShipping.last_name}\n`;
+        text += `*Metode Pengiriman:* ${orderType === 'delivery' ? 'Delivery' : 'Take Away'}\n`;
+        if (orderType === 'delivery') {
+          text += `*Kurir:* ${courier.toUpperCase()} - ${selectedService?.service}\n`;
+        }
+        text += `\n*Detail Pesanan:*\n${itemDetails}\n\n`;
+        text += `*Ongkir:* Rp ${shippingFormatted}\n`;
+        text += `*Total Tagihan: Rp ${totalFormatted}*\n\n`;
+        text += `Mohon kirimkan instruksi pembayaran / QRIS. Terima kasih!`;
+        
+        const encodedText = encodeURIComponent(text);
+        
+        clearAll();
+        alert("Pesanan berhasil dibuat! Kamu akan diarahkan ke WhatsApp untuk melakukan pembayaran.");
+        window.open(`https://wa.me/${waNumber}?text=${encodedText}`, '_blank');
+        router.push("/profile");
+        setIsLoading(false);
+        return;
+      }
+
       const payRes = await fetch("https://arthakara.id/api/pay", {
         method: "POST",
         headers: {
@@ -478,6 +506,36 @@ export default function CheckoutPage() {
             )}
           </div>
 
+          {/* ==================== METODE PEMBAYARAN ==================== */}
+          <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
+            <h2 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-3">
+              <span className="w-8 h-8 rounded-full bg-cyan-50 text-cyan-600 flex items-center justify-center text-sm font-bold border border-cyan-100">3</span>
+              Metode Pembayaran
+            </h2>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <label className={`flex-1 flex items-start gap-3 p-5 rounded-2xl border-2 cursor-pointer transition-all ${paymentMethod === 'whatsapp' ? 'border-cyan-600 bg-cyan-50 shadow-md shadow-cyan-100' : 'border-slate-200 hover:border-cyan-200 hover:bg-slate-50'}`}>
+                <input type="radio" name="paymentMethod" value="whatsapp" checked={paymentMethod === 'whatsapp'} onChange={() => setPaymentMethod('whatsapp')} className="hidden" />
+                <div className="flex-1">
+                  <div className={`font-bold ${paymentMethod === 'whatsapp' ? 'text-cyan-800' : 'text-slate-700'} flex justify-between items-center`}>
+                    WhatsApp (Manual)
+                    <span className="bg-green-100 text-green-700 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">Aktif</span>
+                  </div>
+                  <div className="text-sm mt-1 text-slate-500">Pembayaran via QRIS/Transfer diarahkan ke WA Admin</div>
+                </div>
+              </label>
+              
+              <label className="flex-1 flex items-start gap-3 p-5 rounded-2xl border-2 border-slate-100 bg-slate-50 cursor-not-allowed opacity-60">
+                <input type="radio" name="paymentMethod" value="midtrans" disabled className="hidden" />
+                <div className="flex-1">
+                  <div className="font-bold text-slate-500 flex justify-between items-center">
+                    Midtrans
+                    <span className="bg-slate-200 text-slate-500 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">Belum Tersedia</span>
+                  </div>
+                  <div className="text-sm mt-1 text-slate-400">Otomatisasi Virtual Account, CC, & E-Wallet</div>
+                </div>
+              </label>
+            </div>
+          </div>
 
         </div>
 

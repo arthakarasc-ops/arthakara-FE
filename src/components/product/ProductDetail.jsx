@@ -126,9 +126,6 @@ export default function ProductDetail() {
   };
 
   const handleBulkAddToCart = async () => {
-    const isAllValid = configurations.every(c => c.length === 2);
-    if (!isAllValid) return alert("Pastikan semua produk telah memiliki 2 pilihan wangi.");
-
     const collapsedConfigs = getCollapsedConfigs();
     const payload = collapsedConfigs.map(config => ({
         product_variant_id: selectedVariant.id,
@@ -159,9 +156,6 @@ export default function ProductDetail() {
         return;
     }
 
-    const isAllValid = configurations.every(c => c.length === 2);
-    if (!isAllValid) return alert("Pastikan semua produk telah memiliki 2 pilihan wangi.");
-
     const collapsedConfigs = getCollapsedConfigs();
     const directBuyItems = collapsedConfigs.map(config => {
         const scentExtraTotal = config.scents.reduce((sum, s) => sum + (s.extra_price || 0), 0);
@@ -180,6 +174,43 @@ export default function ProductDetail() {
       direct_buy_items: JSON.stringify(directBuyItems)
     });
 
+    router.push(`/checkout?${params.toString()}`);
+  };
+
+  // =========================
+  // DIRECT CHECKOUT (NO SCENTS)
+  // =========================
+  const handleDirectAddToCart = async () => {
+    if (!isAuthenticated) return setShowLoginModal(true);
+    setAddingToCart(true);
+    const payload = [{
+        product_variant_id: selectedVariant.id,
+        scents: [],
+        qty: quantity
+    }];
+    const res = await addBulkItem(payload);
+    setAddingToCart(false);
+    if (res.success) {
+        alert("Produk berhasil ditambahkan ke keranjang!");
+    } else {
+        alert(res.error || "Gagal menambah ke keranjang");
+    }
+  };
+
+  const handleDirectCheckout = () => {
+    if (!isAuthenticated) return setShowLoginModal(true);
+    const directBuyItems = [{
+        product_variant_id: selectedVariant.id,
+        quantity: quantity,
+        scents: [],
+        scentDetails: [],
+        name: product.name,
+        price: product.price,
+        subtotal: product.price * quantity
+    }];
+    const params = new URLSearchParams({
+      direct_buy_items: JSON.stringify(directBuyItems)
+    });
     router.push(`/checkout?${params.toString()}`);
   };
 
@@ -332,16 +363,35 @@ export default function ProductDetail() {
 
                     <hr className="border-slate-100 mb-8" />
 
-                    {/* BUTTON Lanjut Pilih Wangi */}
+                    {/* BUTTON ACTIONS */}
                     <div className="flex flex-col sm:flex-row gap-4">
-                        <button
-                            onClick={handleOpenWizard}
-                            disabled={!selectedVariant || selectedVariant.stock === 0}
-                            className="flex-1 bg-cyan-600 text-white py-4 rounded-full font-bold shadow-md hover:bg-cyan-700 hover:shadow-lg disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none disabled:cursor-not-allowed transition-all duration-300 flex justify-center items-center gap-2"
-                        >
-                            {selectedVariant?.stock === 0 ? "Stok Habis" : "Lanjut Pilih Wangi"}
-                            {selectedVariant?.stock !== 0 && <ArrowRight size={20} />}
-                        </button>
+                        {product.scents?.length > 0 ? (
+                            <button
+                                onClick={handleOpenWizard}
+                                disabled={!selectedVariant || selectedVariant.stock === 0}
+                                className="flex-1 bg-cyan-600 text-white py-4 rounded-full font-bold shadow-md hover:bg-cyan-700 hover:shadow-lg disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none disabled:cursor-not-allowed transition-all duration-300 flex justify-center items-center gap-2"
+                            >
+                                {selectedVariant?.stock === 0 ? "Stok Habis" : "Lanjut Pilih Wangi"}
+                                {selectedVariant?.stock !== 0 && <ArrowRight size={20} />}
+                            </button>
+                        ) : (
+                            <>
+                                <button
+                                    onClick={handleDirectAddToCart}
+                                    disabled={!selectedVariant || selectedVariant.stock === 0 || addingToCart}
+                                    className="flex-1 py-4 rounded-full font-bold border-2 border-slate-900 text-slate-900 hover:bg-slate-900 hover:text-white transition-all disabled:border-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed flex justify-center items-center gap-2"
+                                >
+                                    <ShoppingCart size={20} /> Ke Keranjang
+                                </button>
+                                <button
+                                    onClick={handleDirectCheckout}
+                                    disabled={!selectedVariant || selectedVariant.stock === 0 || addingToCart}
+                                    className="flex-1 bg-cyan-600 text-white py-4 rounded-full font-bold shadow-md hover:bg-cyan-700 hover:shadow-lg disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none disabled:cursor-not-allowed transition-all duration-300"
+                                >
+                                    Beli Sekarang
+                                </button>
+                            </>
+                        )}
                     </div>
 
                 </div>
@@ -447,14 +497,14 @@ export default function ProductDetail() {
                     <div className="flex gap-3 w-full sm:w-auto">
                         <button
                             onClick={handleBulkAddToCart}
-                            disabled={!configurations.every(c => c.length === 2) || addingToCart}
+                            disabled={addingToCart}
                             className="flex-1 sm:flex-none px-6 py-3 rounded-full font-bold border-2 border-slate-900 text-slate-900 bg-white hover:bg-slate-900 hover:text-white transition-all disabled:border-slate-200 disabled:text-slate-400 disabled:bg-slate-50 disabled:cursor-not-allowed flex items-center justify-center"
                         >
                             {addingToCart ? "Memproses..." : <><ShoppingCart size={18} className="mr-2"/> Ke Keranjang</>}
                         </button>
                         <button
                             onClick={handleBulkCheckout}
-                            disabled={!configurations.every(c => c.length === 2) || addingToCart}
+                            disabled={addingToCart}
                             className="flex-1 sm:flex-none px-6 py-3 rounded-full font-bold bg-cyan-600 text-white shadow-md hover:bg-cyan-700 hover:shadow-lg transition-all disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none disabled:cursor-not-allowed"
                         >
                             Beli Sekarang
