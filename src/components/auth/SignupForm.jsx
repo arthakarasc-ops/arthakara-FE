@@ -58,8 +58,8 @@ export default function SignupForm() {
     }
 
     // VALIDASI PASSWORD
-    if (formData.password.length < 8) {
-      setError("Password minimal 8 karakter");
+    if (formData.password.length < 1) {
+      setError("Password harus diisi");
       return;
     }
 
@@ -170,7 +170,7 @@ export default function SignupForm() {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  minLength={8}
+
                   className="w-full bg-transparent border-0 border-b border-zinc-200 py-3 px-0 text-zinc-900 focus:ring-0 focus:border-cyan-600 outline-none focus:outline-none transition-colors placeholder-zinc-300 text-base"
                   placeholder="••••••••"
                   required
@@ -201,7 +201,7 @@ export default function SignupForm() {
                   name="password_confirmation"
                   value={formData.password_confirmation}
                   onChange={handleChange}
-                  minLength={8}
+
                   className="w-full bg-transparent border-0 border-b border-zinc-200 py-3 px-0 text-zinc-900 focus:ring-0 focus:border-cyan-600 outline-none focus:outline-none transition-colors placeholder-zinc-300 text-base"
                   placeholder="••••••••"
                   required
