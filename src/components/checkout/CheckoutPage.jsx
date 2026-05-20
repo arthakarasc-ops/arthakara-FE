@@ -336,11 +336,15 @@ export default function CheckoutPage() {
             router.push("/profile");
           },
           onError: function (result) {
-            alert("Pembayaran gagal. Silakan coba lagi.");
+            clearAll();
+            alert("Pembayaran gagal. Pesanan telah dibuat, silakan coba bayar lagi dari halaman profil.");
             console.error("Payment Error:", result);
+            router.push("/profile");
           },
           onClose: function () {
+            clearAll();
             alert("Pop-up pembayaran ditutup. Kamu bisa menyelesaikan pembayaran nanti di halaman profil.");
+            router.push("/profile");
           },
         });
       } else {
@@ -518,20 +522,18 @@ export default function CheckoutPage() {
                 <div className="flex-1">
                   <div className={`font-bold ${paymentMethod === 'whatsapp' ? 'text-cyan-800' : 'text-slate-700'} flex justify-between items-center`}>
                     WhatsApp (Manual)
-                    <span className="bg-green-100 text-green-700 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">Aktif</span>
                   </div>
                   <div className="text-sm mt-1 text-slate-500">Pembayaran via QRIS/Transfer diarahkan ke WA Admin</div>
                 </div>
               </label>
               
-              <label className="flex-1 flex items-start gap-3 p-5 rounded-2xl border-2 border-slate-100 bg-slate-50 cursor-not-allowed opacity-60">
-                <input type="radio" name="paymentMethod" value="midtrans" disabled className="hidden" />
+              <label className={`flex-1 flex items-start gap-3 p-5 rounded-2xl border-2 cursor-pointer transition-all ${paymentMethod === 'midtrans' ? 'border-cyan-600 bg-cyan-50 shadow-md shadow-cyan-100' : 'border-slate-200 hover:border-cyan-200 hover:bg-slate-50'}`}>
+                <input type="radio" name="paymentMethod" value="midtrans" checked={paymentMethod === 'midtrans'} onChange={() => setPaymentMethod('midtrans')} className="hidden" />
                 <div className="flex-1">
-                  <div className="font-bold text-slate-500 flex justify-between items-center">
+                  <div className={`font-bold ${paymentMethod === 'midtrans' ? 'text-cyan-800' : 'text-slate-700'} flex justify-between items-center`}>
                     Midtrans
-                    <span className="bg-slate-200 text-slate-500 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">Belum Tersedia</span>
                   </div>
-                  <div className="text-sm mt-1 text-slate-400">Otomatisasi Virtual Account, CC, & E-Wallet</div>
+                  <div className="text-sm mt-1 text-slate-500">Otomatisasi Virtual Account, CC, & E-Wallet</div>
                 </div>
               </label>
             </div>
