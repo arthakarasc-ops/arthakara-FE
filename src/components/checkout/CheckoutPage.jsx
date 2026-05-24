@@ -294,8 +294,8 @@ export default function CheckoutPage() {
         
         clearAll();
         alert("Pesanan berhasil dibuat! Kamu akan diarahkan ke WhatsApp untuk melakukan pembayaran.");
-        window.open(`https://wa.me/${waNumber}?text=${encodedText}`, '_blank');
         router.push("/profile");
+        window.location.href = `https://api.whatsapp.com/send?phone=${waNumber}&text=${encodedText}`;
         setIsLoading(false);
         return;
       }

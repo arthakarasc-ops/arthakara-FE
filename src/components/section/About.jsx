@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 
 // 🔥 Komponen Counter (Tetap)
-function Counter({ val, label }) {
+function Counter({ val, label, showPlus = true }) {
   const target = parseInt(val);
   const [count, setCount] = useState(0);
 
@@ -25,7 +25,10 @@ function Counter({ val, label }) {
 
   return (
     <div className="bg-white px-4 sm:px-8 py-4 sm:py-6 rounded-2xl sm:rounded-3xl border border-cyan-100 shadow-[0_4px_20px_rgba(0,0,0,0.05)] flex flex-col items-center justify-center min-w-[100px] sm:min-w-[120px]">
-      <span className="block text-2xl sm:text-3xl font-bold text-cyan-600">{count}+</span>
+      <span className="block text-2xl sm:text-3xl font-bold text-cyan-600">
+        {count}
+        {showPlus && "+"}
+      </span>
       <span className="text-xs font-semibold text-gray-400 tracking-widest mt-1">{label}</span>
     </div>
   );
@@ -65,11 +68,11 @@ export default function About() {
 
           <div className="flex flex-wrap gap-3 sm:gap-6">
             {[
-              { val: "20+", label: "MEMBERS" },
-              { val: "1000+", label: "ITEMS SOLD" },
-              { val: "500+", label: "BUYERS" }
+              { val: "29", label: "MEMBERS", showPlus: false },
+              { val: "1000+", label: "ITEMS SOLD", showPlus: true },
+              { val: "500+", label: "BUYERS", showPlus: true }
             ].map((item, index) => (
-              <Counter key={index} val={item.val} label={item.label} />
+              <Counter key={index} val={item.val} label={item.label} showPlus={item.showPlus} />
             ))}
           </div>
         </div>

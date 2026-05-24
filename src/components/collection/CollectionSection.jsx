@@ -56,16 +56,13 @@ export default function CollectionSection() {
         {/* HEADER */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
           <div className="max-w-2xl">
-            <span className="text-cyan-600 font-medium tracking-wider text-sm uppercase mb-3 block">Koleksi Pilihan</span>
+            <span className="text-cyan-600 font-medium tracking-wider text-sm uppercase mb-3 block">Discover</span>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900 leading-tight">
-              Eksplorasi <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 to-sky-500">Gaya Anda</span>
+              Our <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 to-sky-500">Collections</span>
             </h2>
-            <p className="mt-4 text-slate-600 text-lg">
-              Kurasi produk eksklusif yang dirancang khusus untuk memenuhi kebutuhan dan gaya hidup modern Anda.
-            </p>
           </div>
           <Link href="/collections" className="hidden md:flex items-center gap-2 text-slate-900 hover:text-cyan-600 font-medium transition-colors group">
-            Lihat Semua Koleksi
+            View All Collections
             <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
@@ -101,7 +98,7 @@ export default function CollectionSection() {
                     <div className="flex items-center gap-2 mb-3 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
                       <span className="bg-cyan-500/20 text-cyan-300 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1.5 border border-cyan-500/30">
                         <Package size={12} />
-                        {collection.productCount} Produk
+                        {collection.productCount} Products
                       </span>
                     </div>
 
@@ -110,11 +107,11 @@ export default function CollectionSection() {
                     </h3>
                     
                     <p className="text-slate-300 text-sm line-clamp-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-150">
-                      {collection.description || "Temukan rangkaian produk premium dalam koleksi eksklusif ini."}
+                      {collection.description || "Discover premium products in this exclusive collection."}
                     </p>
 
                     <div className="flex items-center gap-2 text-white font-medium opacity-0 group-hover:opacity-100 transition-all duration-500 delay-200 translate-y-2 group-hover:translate-y-0">
-                      <span>Eksplorasi</span>
+                      <span>Explore</span>
                       <ArrowRight size={16} className="group-hover:translate-x-2 transition-transform" />
                     </div>
 
@@ -127,7 +124,7 @@ export default function CollectionSection() {
 
         <div className="mt-10 md:hidden flex justify-center">
            <Link href="/collections" className="flex items-center gap-2 text-slate-900 hover:text-cyan-600 font-medium transition-colors group px-6 py-3 border border-slate-200 rounded-full">
-            Lihat Semua Koleksi
+            View All Collections
             <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>

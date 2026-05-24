@@ -123,11 +123,11 @@ export default function Navbar() {
               {!isAuthenticated ? (
                 <div className="flex items-center gap-4 border-l border-slate-300/30 pl-5 xl:pl-6">
                   <Link href="/login" className={`text-sm transition-colors ${getTextColor()}`}>
-                    Masuk
+                    Sign In
                   </Link>
                   <Link href="/signup">
                     <button className="bg-cyan-600 text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-cyan-700 transition-all shadow-md shadow-cyan-600/20">
-                      Daftar
+                      Sign Up
                     </button>
                   </Link>
                 </div>
@@ -214,12 +214,12 @@ export default function Navbar() {
                 <div className="flex flex-col gap-3">
                   <Link href="/login" onClick={() => setIsMobileOpen(false)}>
                     <button className="w-full py-3 text-center text-slate-700 font-semibold border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors">
-                      Masuk
+                      Sign In
                     </button>
                   </Link>
                   <Link href="/signup" onClick={() => setIsMobileOpen(false)}>
                     <button className="w-full py-3 text-center text-white font-semibold bg-cyan-600 rounded-xl hover:bg-cyan-700 transition-colors shadow-md shadow-cyan-600/20">
-                      Daftar Akun Baru
+                      Create Account
                     </button>
                   </Link>
                 </div>
@@ -232,7 +232,7 @@ export default function Navbar() {
                       ) : (
                         <User size={18} />
                       )}
-                      Profil Saya
+                      My Profile
                     </button>
                   </Link>
                   <button
@@ -242,7 +242,7 @@ export default function Navbar() {
                     }}
                     className="w-full py-3 text-center text-red-600 font-semibold hover:bg-red-50 rounded-xl transition-colors"
                   >
-                    Keluar Sesi
+                    Sign Out
                   </button>
                 </div>
               )}
@@ -259,7 +259,7 @@ export default function Navbar() {
       >
         <div className="max-w-4xl mx-auto px-6 pt-24">
           <div className="flex items-center justify-between mb-12">
-            <h2 className="text-sm font-bold uppercase tracking-[0.2em] text-slate-400">Pencarian Produk</h2>
+            <h2 className="text-sm font-bold uppercase tracking-[0.2em] text-slate-400">Product Search</h2>
             <button 
               onClick={() => {
                 setIsSearchOpen(false);
@@ -275,7 +275,7 @@ export default function Navbar() {
             <input 
               type="text"
               autoFocus={isSearchOpen}
-              placeholder="Cari produk..."
+              placeholder="Search products..."
               className="w-full bg-transparent border-b-2 border-slate-200 py-6 text-2xl sm:text-4xl font-bold text-slate-900 placeholder:text-slate-200 focus:outline-none focus:border-cyan-600 transition-colors"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -313,7 +313,7 @@ export default function Navbar() {
               ))
             ) : searchQuery.length > 2 ? (
               <div className="col-span-full text-center py-12">
-                <p className="text-slate-400 font-medium italic">Produk tidak ditemukan...</p>
+                <p className="text-slate-400 font-medium italic">Products not found...</p>
               </div>
             ) : null}
           </div>
@@ -324,11 +324,11 @@ export default function Navbar() {
 }
 
 const navLinks = [
-  { name: "Beranda", path: "/" },
-  { name: "Koleksi", path: "/collections" },
-  { name: "Semua Produk", path: "/products" },
-  { name: "Tentang Kami", path: "/#about" },
-  { name: "Nilai Kami", path: "/#value" },
-  { name: "Tim Kami", path: "/#ourteam" },
-  { name: "Kontak", path: "/#contact" },
+  { name: "Home", path: "/" },
+  { name: "Collections", path: "/collections" },
+  { name: "Products", path: "/products" },
+  { name: "About Us", path: "/#about" },
+  { name: "Our Values", path: "/#value" },
+  { name: "Our Team", path: "/#ourteam" },
+  { name: "Contact", path: "/#contact" },
 ];
