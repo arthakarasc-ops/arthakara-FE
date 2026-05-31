@@ -5,7 +5,6 @@ import Values from '@/components/section/Values';
 import CollectionSection from '@/components/collection/CollectionSection';
 import Contact from '@/components/section/Contact';
 import Ourtim from '@/components/section/Ourtim';
-import Sponsor from '@/components/section/Sponsor';
 
 export default function Home() {
   return (
@@ -17,7 +16,6 @@ export default function Home() {
         <Values />
         <Ourtim />
         <CollectionSection />
-        <Sponsor />
         <Contact />
       </div>
     </main>

@@ -6,7 +6,7 @@ export default function Sponsor() {
   ];
 
   return (
-    <section className="py-12 md:py-16 bg-[#faebd7]">
+    <section className="pt-12 pb-20 md:pt-16 md:pb-28 bg-[#faebd7]">
       <div className="max-w-6xl mx-auto px-6">
         <div className="text-center mb-10 md:mb-16">
           <p className="text-sm tracking-widest text-slate-500 uppercase mb-3 font-semibold">
@@ -22,12 +22,12 @@ export default function Sponsor() {
           {sponsors.map((sponsor, index) => (
             <div 
               key={index} 
-              className="group flex items-center justify-center transition-all duration-500 grayscale hover:grayscale-0"
+              className="group flex items-center justify-center transition-all duration-500"
             >
               <img 
                 src={sponsor.logo} 
                 alt={sponsor.name} 
-                className={`object-contain opacity-60 group-hover:opacity-100 transition-all duration-500 ${sponsor.imgClass}`}
+                className={`object-contain ${sponsor.imgClass}`}
               />
             </div>
           ))}

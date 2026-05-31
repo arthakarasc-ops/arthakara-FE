@@ -22,8 +22,8 @@ export default function Contact() {
           {/* Left: Contact Details (WA moved here) */}
           <div className="md:col-span-5 space-y-10">
             {[
-              { icon: MessageCircle, title: "WhatsApp Business", value: "+62 877-8448-8639", link: "https://wa.me/6287784488639" },
-              { icon: Mail, title: "Email", value: "arthakarasc@gmail.com", link: "mailto:arthakarasc@gmail.com" },
+              { icon: MessageCircle, title: "Contact me", value: "+62 877-8448-8639", link: "https://wa.me/6287784488639" },
+              { icon: Mail, title: "E-Mail", value: "arthakarasc@gmail.com", link: "mailto:arthakarasc@gmail.com" },
               { icon: MapPin, title: "Location", value: "SMA Kolese Loyola, Semarang, Central Java", link: "https://maps.app.goo.gl/Xy75i8tQ3MEtFDrj9" }
             ].map((item, idx) => (
               <div key={idx} className="flex gap-5 group">

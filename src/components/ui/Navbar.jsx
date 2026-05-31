@@ -14,15 +14,21 @@ export default function Navbar() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [allProducts, setAllProducts] = useState([]);
+  const [mobileDropdowns, setMobileDropdowns] = useState({});
   const pathname = usePathname();
   const router = useRouter();
 
   const { user, isAuthenticated, logout } = useAuth();
   const { cartCount } = useCart();
 
-  const isShopPage = pathname.startsWith("/products") || pathname.startsWith("/collections") || pathname.startsWith("/cart") || pathname.startsWith("/profile");
+  const isShopPage = pathname.startsWith("/products") || pathname.startsWith("/collections") || pathname.startsWith("/cart") || pathname.startsWith("/profile") || pathname.startsWith("/supported-by") || pathname.startsWith("/activities");
 
-  const isActive = (path) => path === "/" ? pathname === "/" : pathname.startsWith(path);
+  const isActive = (link) => {
+    if (link.dropdown) {
+      return link.dropdown.some(subLink => subLink.path !== "/" && pathname.startsWith(subLink.path));
+    }
+    return link.path === "/" ? pathname === "/" : pathname.startsWith(link.path);
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -98,16 +104,47 @@ export default function Navbar() {
 
             {/* DESKTOP NAVIGATION (CENTER) */}
             <div className="hidden lg:flex items-center justify-center space-x-6 xl:space-x-8 flex-grow">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.path}
-                  href={link.path}
-                  className={`text-[12px] xl:text-[13px] uppercase tracking-[0.1em] transition-all duration-300 relative group ${getTextColor(isActive(link.path))}`}
-                >
-                  {link.name}
-                  <span className={`absolute -bottom-1 left-0 h-[2px] bg-cyan-500 transition-all duration-300 ${isActive(link.path) ? "w-full" : "w-0 group-hover:w-full"}`}></span>
-                </Link>
-              ))}
+              {navLinks.map((link) => {
+                const hasDropdown = !!link.dropdown;
+                return (
+                  <div key={link.name} className="relative group py-2">
+                    {hasDropdown ? (
+                      <div className="flex items-center gap-1 cursor-pointer">
+                        <span className={`text-[12px] xl:text-[13px] uppercase tracking-[0.1em] transition-all duration-300 ${getTextColor(isActive(link))}`}>
+                          {link.name}
+                        </span>
+                        <ChevronDown size={14} className={`transition-transform duration-300 group-hover:rotate-180 ${getIconColor()}`} />
+                      </div>
+                    ) : (
+                      <Link
+                        href={link.path}
+                        className={`text-[12px] xl:text-[13px] uppercase tracking-[0.1em] transition-all duration-300 relative ${getTextColor(isActive(link))}`}
+                      >
+                        {link.name}
+                        <span className={`absolute -bottom-1 left-0 h-[2px] bg-cyan-500 transition-all duration-300 ${isActive(link) ? "w-full" : "w-0 group-hover:w-full"}`}></span>
+                      </Link>
+                    )}
+
+                    {hasDropdown && (
+                      <div className="absolute left-1/2 -translate-x-1/2 top-full pt-2 w-48 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 z-50">
+                        <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-slate-100 py-2 overflow-hidden">
+                          {link.dropdown.map((subLink) => (
+                            <Link
+                              key={subLink.path}
+                              href={subLink.path}
+                              className={`block px-5 py-2.5 text-xs font-semibold uppercase tracking-wider hover:bg-slate-50 hover:text-cyan-600 transition-colors ${
+                                subLink.path !== "/" && pathname.startsWith(subLink.path) ? "text-cyan-600 bg-cyan-50/50" : "text-slate-600"
+                              }`}
+                            >
+                              {subLink.name}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
 
             {/* RIGHT ACTIONS */}
@@ -191,23 +228,54 @@ export default function Navbar() {
 
         {/* MOBILE DROPDOWN MENU */}
         <div
-          className={`lg:hidden fixed w-full bg-white border-b border-slate-100 shadow-2xl transition-all duration-300 ease-in-out ${
-            isMobileOpen ? "max-h-[85vh] opacity-100" : "max-h-0 opacity-0 pointer-events-none"
-          } overflow-y-auto`}
+          className={`lg:hidden absolute top-full left-0 w-full bg-white border-b border-slate-100 shadow-2xl transition-all duration-300 ease-in-out overflow-y-auto ${
+            isMobileOpen ? "h-[100dvh] opacity-100 pb-32" : "h-0 opacity-0 pointer-events-none"
+          }`}
         >
           <div className="px-4 pt-4 pb-8 space-y-1">
-            {navLinks.map((link) => (
-              <Link
-                key={link.path}
-                href={link.path}
-                onClick={() => setIsMobileOpen(false)}
-                className={`block px-4 py-3.5 text-base font-medium rounded-xl transition-colors ${
-                    isActive(link.path) ? "bg-cyan-50 text-cyan-700" : "text-slate-700 hover:bg-slate-50 hover:text-cyan-600"
-                }`}
-              >
-                {link.name}
-              </Link>
-            ))}
+            {navLinks.map((link) => {
+              const hasDropdown = !!link.dropdown;
+              const isOpen = !!mobileDropdowns[link.name];
+              return (
+                <div key={link.name} className="space-y-1">
+                  {hasDropdown ? (
+                    <div>
+                      <button
+                        onClick={() => setMobileDropdowns(prev => ({ ...prev, [link.name]: !prev[link.name] }))}
+                        className="w-full flex items-center justify-between px-4 py-3.5 text-base font-medium rounded-xl text-slate-700 hover:bg-slate-50 hover:text-cyan-600 transition-colors"
+                      >
+                        <span>{link.name}</span>
+                        <ChevronDown size={18} className={`transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`} />
+                      </button>
+                      <div className={`overflow-hidden transition-all duration-300 ${isOpen ? "max-h-60 opacity-100 py-1 pl-4" : "max-h-0 opacity-0 pointer-events-none"}`}>
+                        {link.dropdown.map((subLink) => (
+                          <Link
+                            key={subLink.path}
+                            href={subLink.path}
+                            onClick={() => setIsMobileOpen(false)}
+                            className={`block px-4 py-3 text-sm font-medium rounded-xl transition-colors ${
+                              subLink.path !== "/" && pathname.startsWith(subLink.path) ? "text-cyan-700 bg-cyan-50/50" : "text-slate-500 hover:text-cyan-600 hover:bg-slate-50"
+                            }`}
+                          >
+                            {subLink.name}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <Link
+                      href={link.path}
+                      onClick={() => setIsMobileOpen(false)}
+                      className={`block px-4 py-3.5 text-base font-medium rounded-xl transition-colors ${
+                        isActive(link) ? "bg-cyan-50 text-cyan-700" : "text-slate-700 hover:bg-slate-50 hover:text-cyan-600"
+                      }`}
+                    >
+                      {link.name}
+                    </Link>
+                  )}
+                </div>
+              );
+            })}
             
             <div className="mt-6 pt-6 border-t border-slate-100 px-4">
               {!isAuthenticated ? (
@@ -325,10 +393,24 @@ export default function Navbar() {
 
 const navLinks = [
   { name: "Home", path: "/" },
-  { name: "Collections", path: "/collections" },
-  { name: "Products", path: "/products" },
-  { name: "About Us", path: "/#about" },
-  { name: "Our Values", path: "/#value" },
-  { name: "Our Team", path: "/#ourteam" },
-  { name: "Contact", path: "/#contact" },
+  {
+    name: "Shop",
+    path: "/products",
+    dropdown: [
+      { name: "Collections", path: "/collections" },
+      { name: "All Products", path: "/products" }
+    ]
+  },
+  {
+    name: "About Arthakara",
+    path: "/#about",
+    dropdown: [
+      { name: "About Us", path: "/#about" },
+      { name: "Our Values", path: "/#value" },
+      { name: "Our Team", path: "/#ourteam" },
+      { name: "Our Activities", path: "/activities" },
+      { name: "Supported By", path: "/supported-by" }
+    ]
+  },
+  { name: "Contact", path: "/#contact" }
 ];
