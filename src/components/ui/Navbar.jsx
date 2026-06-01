@@ -21,7 +21,7 @@ export default function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
   const { cartCount } = useCart();
 
-  const isShopPage = pathname.startsWith("/products") || pathname.startsWith("/collections") || pathname.startsWith("/cart") || pathname.startsWith("/profile") || pathname.startsWith("/supported-by") || pathname.startsWith("/activities");
+  const isShopPage = pathname.startsWith("/products") || pathname.startsWith("/collections") || pathname.startsWith("/cart") || pathname.startsWith("/profile") || pathname.startsWith("/supported-by") || pathname.startsWith("/sponsorship") || pathname.startsWith("/activities");
 
   const isActive = (link) => {
     if (link.dropdown) {
@@ -409,7 +409,8 @@ const navLinks = [
       { name: "Our Values", path: "/#value" },
       { name: "Our Team", path: "/#ourteam" },
       { name: "Our Activities", path: "/activities" },
-      { name: "Supported By", path: "/supported-by" }
+      { name: "Supported By", path: "/supported-by" },
+      { name: "Sponsorship", path: "/sponsorship" }
     ]
   },
   { name: "Contact", path: "/#contact" }
