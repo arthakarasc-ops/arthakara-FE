@@ -118,7 +118,7 @@ export default function ForgotPassword() {
                   {email}
                 </p>
                 <p className="text-xs text-zinc-400 pt-2 font-light">
-                  Silakan periksa kotak masuk atau folder spam email Anda dalam beberapa menit ke depan.
+                  Silakan periksa email Anda dalam beberapa menit ke depan.
                 </p>
               </div>
 
