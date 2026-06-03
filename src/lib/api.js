@@ -43,6 +43,28 @@ export const loginUser = async (data) => {
   }
 };
 
+export const forgotPasswordUser = async (data) => {
+  try {
+    // Pastikan ada kata /auth/ sesuai dengan pola login kamu yang sukses
+    const res = await fetch(`${BASE_URL}/auth/forgot-password`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    const responseData = await res.json();
+    return { status: res.status, data: responseData };
+  } catch (error) {
+    return {
+      status: 500,
+      data: { error: error.message || "Terjadi kesalahan" },
+    };
+  }
+};  
+
 export const updateUserProfile = async (token, formData) => {
   try {
     const res = await fetch(`${BASE_URL}/users/update`, {
@@ -248,4 +270,4 @@ export const getShippingCost = async (payload) => {
     return { error: true, message: error.message };
   }
 };
-
+

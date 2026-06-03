@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { loginUser, registerUser } from "@/lib/api";
+import { loginUser, registerUser, forgotPasswordUser } from "@/lib/api"; // 1. Ditambahkan forgotPasswordUser
 import { setAuth, getToken, getUser, logout } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 
@@ -64,7 +64,26 @@ export const AuthProvider = ({ children }) => {
         throw new Error(data.error || "Pendaftaran gagal");
       }
 
-      // Jangan auto login, hanya return success
+      return data;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  // 2. FUNGSI BARU: Reset Password untuk memanggil API backend
+  const resetPassword = async (email) => {
+    try {
+      const { status, data } = await forgotPasswordUser({ email });
+
+      if (!data) {
+        throw new Error("Response tidak valid dari server");
+      }
+
+      // Menyesuaikan status code sukses HTTP (biasanya 200 OK)
+      if (status !== 200) {
+        throw new Error(data.error || "Gagal mengirim link reset password");
+      }
+
       return data;
     } catch (error) {
       throw error;
@@ -91,6 +110,7 @@ export const AuthProvider = ({ children }) => {
         loading,
         login,
         register,
+        resetPassword, // 3. Didaftarkan ke provider agar bisa dikonsumsi page ForgotPassword
         updateUser,
         logout: handleLogout,
         isAuthenticated: !!token,

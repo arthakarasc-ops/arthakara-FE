@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Mail, Lock, User, Eye, EyeOff, ArrowLeft, Phone } from "lucide-react";
+import { Mail, Lock, User, Eye, EyeOff, ArrowLeft, Phone, CheckCircle2 } from "lucide-react";
 import { useAuth } from "@/components/context/AuthContext";
 
 export default function SignupForm() {
@@ -18,6 +18,11 @@ export default function SignupForm() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  
+  // STATE BARU UNTUK KEBUTUHAN ALUR POP-UP
+  const [isTermsOpen, setIsTermsOpen] = useState(false); // Buka-tutup pop-up
+  const [hasAgreed, setHasAgreed] = useState(false);   // Status persetujuan user
+
   const { register } = useAuth();
   const router = useRouter();
 
@@ -42,6 +47,12 @@ export default function SignupForm() {
 
   const handleSignup = async (e) => {
     e.preventDefault();
+
+    // VALIDASI TAMBAHAN: Cegah submit lewat Enter jika belum setuju
+    if (!hasAgreed) {
+      setError("Anda harus membaca dan menyetujui Syarat & Ketentuan terlebih dahulu.");
+      return;
+    }
 
     // VALIDASI EMAIL
     const emailRegex = /^[^\s@]+@[^\s@]+\.com$/;
@@ -79,6 +90,12 @@ export default function SignupForm() {
       setError(err.message || "Pendaftaran gagal. Silakan coba lagi.");
       setIsLoading(false);
     }
+  };
+
+  // Fungsi saat user klik "Saya Setuju" di dalam pop-up
+  const handleAcceptTerms = () => {
+    setHasAgreed(true);
+    setIsTermsOpen(false);
   };
 
   return (
@@ -170,7 +187,6 @@ export default function SignupForm() {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-
                   className="w-full bg-transparent border-0 border-b border-zinc-200 py-3 px-0 text-zinc-900 focus:ring-0 focus:border-cyan-600 outline-none focus:outline-none transition-colors placeholder-zinc-300 text-base"
                   placeholder="••••••••"
                   required
@@ -201,7 +217,6 @@ export default function SignupForm() {
                   name="password_confirmation"
                   value={formData.password_confirmation}
                   onChange={handleChange}
-
                   className="w-full bg-transparent border-0 border-b border-zinc-200 py-3 px-0 text-zinc-900 focus:ring-0 focus:border-cyan-600 outline-none focus:outline-none transition-colors placeholder-zinc-300 text-base"
                   placeholder="••••••••"
                   required
@@ -221,28 +236,33 @@ export default function SignupForm() {
               </div>
             </div>
 
-            {/* Terms */}
-            <div className="flex items-start pt-2">
-              <label className="flex items-start text-zinc-500 cursor-pointer group">
-                <div className="relative flex items-center justify-center w-4 h-4 mt-0.5 mr-3 border border-zinc-300 group-hover:border-cyan-600 transition-colors flex-shrink-0">
-                  <input
-                    type="checkbox"
-                    className="absolute opacity-0 w-full h-full cursor-pointer peer"
-                    required
-                  />
-                  <div className="w-2 h-2 bg-cyan-600 opacity-0 peer-checked:opacity-100 transition-opacity"></div>
+            {/* Alur Teks Baru Tanpa Checkbox Bawaan */}
+            <div className="pt-2 text-center sm:text-left">
+              {hasAgreed ? (
+                <div className="inline-flex items-center text-sm text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full font-light">
+                  <CheckCircle2 className="w-4 h-4 mr-2 stroke-[2.5]" />
+                  Anda telah menyetujui Syarat & Ketentuan.
                 </div>
-                <span className="text-sm font-light leading-relaxed group-hover:text-cyan-600 transition-colors">
-                  Saya setuju dengan <Link href="#" className="font-medium underline decoration-1 underline-offset-4">Syarat & Ketentuan</Link>
-                </span>
-              </label>
+              ) : (
+                <p className="text-sm font-light text-zinc-500 leading-relaxed">
+                  Sebelum mendaftar, Anda diwajibkan untuk membaca dan menyetujui{" "}
+                  <button
+                    type="button"
+                    onClick={() => setIsTermsOpen(true)}
+                    className="font-medium text-cyan-600 underline decoration-1 underline-offset-4 hover:text-cyan-700 transition-colors"
+                  >
+                    Syarat & Ketentuan
+                  </button>{" "}
+                  Arthakara.
+                </p>
+              )}
             </div>
 
-            {/* Signup Button */}
+            {/* Tombol Register (Akan aktif kalau hasAgreed bernilai true) */}
             <button
               type="submit"
-              disabled={isLoading}
-              className="w-full py-4 mt-4 bg-cyan-600 text-white text-xs uppercase tracking-widest font-semibold hover:bg-cyan-700 active:scale-[0.98] disabled:bg-zinc-200 disabled:text-zinc-400 disabled:scale-100 transition-all duration-300"
+              disabled={isLoading || !hasAgreed}
+              className="w-full py-4 mt-4 bg-cyan-600 text-white text-xs uppercase tracking-widest font-semibold hover:bg-cyan-700 active:scale-[0.98] disabled:bg-zinc-100 disabled:text-zinc-400 disabled:scale-100 transition-all duration-300 border disabled:border-zinc-200"
             >
               {isLoading ? "Creating Account..." : "Create Account"}
             </button>
@@ -266,6 +286,68 @@ export default function SignupForm() {
         </div>
 
       </div>
+
+      {/* POP-UP MODAL SYARAT & KETENTUAN */}
+      {isTermsOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-900/40 backdrop-blur-sm transition-opacity">
+          <div className="bg-white w-full max-w-2xl max-h-[80vh] flex flex-col shadow-2xl border border-zinc-100 transform scale-100 transition-transform">
+            
+            {/* Header Pop-up */}
+            <div className="p-6 border-b border-zinc-100 flex justify-between items-center">
+              <h2 className="text-lg font-medium tracking-tight text-zinc-900">Syarat & Ketentuan Arthakara</h2>
+              <button 
+                type="button" 
+                onClick={() => setIsTermsOpen(false)}
+                className="text-zinc-400 hover:text-zinc-600 text-xs uppercase tracking-widest font-semibold transition-colors"
+              >
+                Batal
+              </button>
+            </div>
+
+            {/* Isi Dokumen (Scrollable) */}
+            <div className="p-6 overflow-y-auto space-y-6 text-sm font-light leading-relaxed text-zinc-600">
+              <section className="space-y-2">
+                <h3 className="text-xs uppercase tracking-widest text-zinc-900 font-semibold">1. Ketentuan Umum</h3>
+                <p>Dengan mendaftar dan menggunakan layanan di platform Arthakara, Anda menyatakan bahwa Anda telah membaca, memahami, dan menyetujui seluruh aturan yang tertulis di dalam dokumen ini.</p>
+              </section>
+
+              <section className="space-y-2">
+                <h3 className="text-xs uppercase tracking-widest text-zinc-900 font-semibold">2. Keamanan Akun</h3>
+                <p>Anda bertanggung jawab penuh untuk menjaga kerahasiaan informasi akun Anda, termasuk kata sandi (password). Pihak manajemen tidak bertanggung jawab atas kelalaian pengguna.</p>
+              </section>
+
+              <section className="space-y-2">
+                <h3 className="text-xs uppercase tracking-widest text-zinc-900 font-semibold">3. Hak Kekayaan Intelektual</h3>
+                <p>Seluruh materi, desain produk, logo, teks, grafik, dan sistem coding yang berada di dalam situs Arthakara merupakan hak milik eksklusif dari pihak manajemen Arthakara.</p>
+              </section>
+
+              <section className="space-y-2">
+                <h3 className="text-xs uppercase tracking-widest text-zinc-900 font-semibold">4. Perubahan Ketentuan</h3>
+                <p>Pihak Arthakara berhak untuk mengubah, menambah, atau memperbarui syarat dan ketentuan ini sewaktu-waktu tanpa pemberitahuan tertulis sebelumnya.</p>
+              </section>
+            </div>
+
+            {/* Footer Pop-up */}
+            <div className="p-4 bg-zinc-50 border-t border-zinc-100 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setIsTermsOpen(false)}
+                className="px-5 py-2 border border-zinc-200 text-zinc-500 text-xs uppercase tracking-widest font-semibold hover:bg-zinc-100 transition-colors"
+              >
+                Kembali
+              </button>
+              <button
+                type="button"
+                onClick={handleAcceptTerms}
+                className="px-6 py-2 bg-cyan-600 text-white text-xs uppercase tracking-widest font-semibold hover:bg-cyan-700 transition-colors"
+              >
+                Saya Setuju
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
     </div>
   );
 }
