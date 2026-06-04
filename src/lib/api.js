@@ -63,6 +63,48 @@ export const forgotPasswordUser = async (data) => {
       data: { error: error.message || "Terjadi kesalahan" },
     };
   }
+};
+
+export const verifyOtpUser = async (data) => {
+  try {
+    const res = await fetch(`${BASE_URL}/auth/verify-otp`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    const responseData = await res.json();
+    return { status: res.status, data: responseData };
+  } catch (error) {
+    return {
+      status: 500,
+      data: { error: error.message || "Terjadi kesalahan" },
+    };
+  }
+};
+
+export const resetPasswordUser = async (data) => {
+  try {
+    const res = await fetch(`${BASE_URL}/auth/reset-password`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    const responseData = await res.json();
+    return { status: res.status, data: responseData };
+  } catch (error) {
+    return {
+      status: 500,
+      data: { error: error.message || "Terjadi kesalahan" },
+    };
+  }
 };  
 
 export const updateUserProfile = async (token, formData) => {
