@@ -247,7 +247,7 @@ export default function Navbar() {
                         <span>{link.name}</span>
                         <ChevronDown size={18} className={`transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`} />
                       </button>
-                      <div className={`overflow-hidden transition-all duration-300 ${isOpen ? "max-h-60 opacity-100 py-1 pl-4" : "max-h-0 opacity-0 pointer-events-none"}`}>
+                      <div className={`overflow-hidden transition-all duration-300 ${isOpen ? "max-h-80 opacity-100 py-1 pl-4" : "max-h-0 opacity-0 pointer-events-none"}`}>
                         {link.dropdown.map((subLink) => (
                           <Link
                             key={subLink.path}
