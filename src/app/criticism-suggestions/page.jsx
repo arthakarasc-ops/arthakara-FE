@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Navbar from "@/components/ui/Navbar";
 import { Star, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
@@ -54,7 +55,9 @@ export default function CriticismPage() {
   };
 
   return (
-    <section className="py-20 bg-slate-50 min-h-screen">
+    <main className="min-h-screen bg-gradient-to-b from-teal-700 to-cyan-500 font-sans overflow-x-hidden flex flex-col justify-between">
+    <Navbar />
+    <section className="py-20 mt-12 bg-slate-50 min-h-screen">
       <div className="max-w-2xl mx-auto px-6">
         {isSuccess ? (
           // Tampilan Sukses
@@ -67,7 +70,7 @@ export default function CriticismPage() {
               <button 
                 onClick={handleReset}
                 className="w-full bg-slate-900 text-white py-3 rounded-xl font-bold hover:bg-cyan-600 transition-all"
-              >
+                >
                 Kirim Masukan Lain
               </button>
               <Link href="/" className="w-full text-slate-600 py-3 font-medium hover:text-slate-900 transition-colors">
@@ -93,21 +96,21 @@ export default function CriticismPage() {
                 <div className="flex gap-2">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <button
-                      type="button"
-                      key={star}
-                      onClick={() => setFormData({ ...formData, rating: star })}
-                      onMouseEnter={() => setHoveredRating(star)}
-                      onMouseLeave={() => setHoveredRating(0)}
-                      className="focus:outline-none transition-transform hover:scale-110"
+                    type="button"
+                    key={star}
+                    onClick={() => setFormData({ ...formData, rating: star })}
+                    onMouseEnter={() => setHoveredRating(star)}
+                    onMouseLeave={() => setHoveredRating(0)}
+                    className="focus:outline-none transition-transform hover:scale-110"
                     >
                       <Star
                         size={32}
                         className={`transition-colors ${
                           (hoveredRating || formData.rating) >= star
-                            ? "fill-yellow-400 text-yellow-400"
-                            : "text-slate-300"
+                          ? "fill-yellow-400 text-yellow-400"
+                          : "text-slate-300"
                         }`}
-                      />
+                        />
                     </button>
                   ))}
                 </div>
@@ -123,7 +126,7 @@ export default function CriticismPage() {
                   placeholder="Masukkan nama Anda"
                   className="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-cyan-500 outline-none text-slate-900 placeholder:text-slate-300 transition-all"
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                />
+                  />
               </div>
 
               {/* Email & Telp */}
@@ -137,7 +140,7 @@ export default function CriticismPage() {
                     placeholder="email@example.com"
                     className="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-cyan-500 outline-none text-slate-900 placeholder:text-slate-300 transition-all"
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  />
+                    />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-2">No. Telp</label>
@@ -148,7 +151,7 @@ export default function CriticismPage() {
                     placeholder="08123456789"
                     className="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-cyan-500 outline-none text-slate-900 placeholder:text-slate-300 transition-all"
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  />
+                    />
                 </div>
               </div>
 
@@ -162,7 +165,7 @@ export default function CriticismPage() {
                   placeholder="Tuliskan masukan Anda di sini..."
                   className="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-cyan-500 outline-none text-slate-900 placeholder:text-slate-300 transition-all"
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                ></textarea>
+                  ></textarea>
               </div>
 
               <button
@@ -171,7 +174,7 @@ export default function CriticismPage() {
                 className={`w-full py-4 rounded-xl font-bold transition-all ${
                   isSubmitting ? "bg-slate-400 cursor-not-allowed" : "bg-slate-900 text-white hover:bg-cyan-600"
                 }`}
-              >
+                >
                 {isSubmitting ? "Mengirim..." : "Kirim Masukan"}
               </button>
             </form>
@@ -179,5 +182,6 @@ export default function CriticismPage() {
         )}
       </div>
     </section>
+    </main>
   );
 }
