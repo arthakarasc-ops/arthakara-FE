@@ -140,10 +140,10 @@ export default function CollectionPage({ slug }) {
         {/* HEADER */}
         <div className="text-center mb-20">
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-slate-900 mb-6 tracking-tight">
-            Koleksi <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 to-sky-500">Produk</span>
+            Product <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 to-sky-500">Collection</span>
           </h1>
           <p className="text-slate-600 text-lg max-w-2xl mx-auto">
-            Daftar kategori produk kami. Jelajahi berbagai pilihan produk berkualitas yang tersedia di setiap koleksi.
+            This product collection is made from used plastic bottle caps, transformed into meaningful pieces that give discarded materials a new purpose & identity.
           </p>
         </div>
         

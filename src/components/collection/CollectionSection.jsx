@@ -12,11 +12,8 @@ export default function CollectionSection() {
   useEffect(() => {
     const fetchCollections = async () => {
       const res = await getCollections();
-
       if (res.status === 200 && Array.isArray(res.data)) {
         const collectionsData = res.data;
-        
-        // Fetch product count for each collection
         const collectionsWithCounts = await Promise.all(
           collectionsData.map(async (col) => {
             try {
@@ -31,12 +28,8 @@ export default function CollectionSection() {
             }
           })
         );
-
         setCollections(collectionsWithCounts);
-      } else {
-        setCollections([]);
       }
-
       setLoading(false);
     };
 
@@ -44,14 +37,11 @@ export default function CollectionSection() {
   }, []);
 
   return (
-    <section className="py-24 px-4 sm:px-6 lg:px-8 bg-slate-50 relative overflow-hidden">
-      {/* Decorative background elements */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
-        <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-cyan-100/40 blur-[120px]"></div>
-        <div className="absolute top-[60%] -right-[10%] w-[40%] h-[60%] rounded-full bg-sky-100/40 blur-[100px]"></div>
-      </div>
+    <section className="relative bg-slate-50 py-20">
+      {/* GRADASI TRANSISI: Dari Putih ke Slate-50 */}
+      <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-white to-slate-50 z-0"></div>
 
-      <div className="max-w-7xl mx-auto relative z-10">
+      <div className="max-w-7xl mx-auto px-6 relative z-10">
         
         {/* HEADER */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
@@ -67,20 +57,21 @@ export default function CollectionSection() {
           </Link>
         </div>
 
-        {/* LOADING */}
+        {/* CONTENT GRID */}
         {loading ? (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {[...Array(3)].map((_, i) => (
-              <div key={`col-sec-skeleton-${i}`} className="h-[400px] rounded-3xl bg-slate-200 animate-pulse border border-slate-100"></div>
+              <div key={i} className="h-[400px] rounded-[2rem] bg-slate-200 animate-pulse"></div>
             ))}
           </div>
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {collections.slice(0, 3).map((collection, index) => (
-              <Link key={collection.id} href={`/collections/${collection.slug}`} className="group">
-                <div className="relative h-[400px] rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 bg-white">
+            {collections.slice(0, 3).map((collection) => (
+              <Link key={collection.id} href={`/collections/${collection.slug}`} className="group block">
+                {/* CARD CONTAINER */}
+                <div className="relative h-[400px] rounded-[2rem] overflow-hidden bg-white shadow-sm hover:shadow-xl transition-all duration-500 border border-slate-100">
                   
-                  {/* IMAGE WITH ZOOM EFFECT */}
+                  {/* IMAGE */}
                   <div className="absolute inset-0 w-full h-full">
                     <img
                       src={collection.image_url || "/no-image.png"}
@@ -90,13 +81,12 @@ export default function CollectionSection() {
                   </div>
 
                   {/* GRADIENT OVERLAY */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/30 to-transparent transition-opacity duration-500 group-hover:opacity-90"></div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/20 to-transparent"></div>
 
                   {/* CONTENT */}
-                  <div className="absolute bottom-0 left-0 w-full p-8 translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                    
-                    <div className="flex items-center gap-2 mb-3 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
-                      <span className="bg-cyan-500/20 text-cyan-300 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1.5 border border-cyan-500/30">
+                  <div className="absolute bottom-0 left-0 w-full p-8">
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="bg-white/10 text-white backdrop-blur-md px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1.5 border border-white/20">
                         <Package size={12} />
                         {collection.productCount} Products
                       </span>
@@ -106,15 +96,14 @@ export default function CollectionSection() {
                       {collection.name}
                     </h3>
                     
-                    <p className="text-slate-300 text-sm line-clamp-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-150">
+                    <p className="text-slate-200 text-sm line-clamp-2 mb-6">
                       {collection.description || "Discover premium products in this exclusive collection."}
                     </p>
 
-                    <div className="flex items-center gap-2 text-white font-medium opacity-0 group-hover:opacity-100 transition-all duration-500 delay-200 translate-y-2 group-hover:translate-y-0">
+                    <div className="flex items-center gap-2 text-white font-semibold group-hover:gap-4 transition-all duration-300">
                       <span>Explore</span>
-                      <ArrowRight size={16} className="group-hover:translate-x-2 transition-transform" />
+                      <ArrowRight size={16} />
                     </div>
-
                   </div>
                 </div>
               </Link>
@@ -122,10 +111,11 @@ export default function CollectionSection() {
           </div>
         )}
 
+        {/* MOBILE VIEW ALL BUTTON */}
         <div className="mt-10 md:hidden flex justify-center">
-           <Link href="/collections" className="flex items-center gap-2 text-slate-900 hover:text-cyan-600 font-medium transition-colors group px-6 py-3 border border-slate-200 rounded-full">
+           <Link href="/collections" className="flex items-center gap-2 text-slate-900 hover:text-cyan-600 font-medium transition-colors px-6 py-3 border border-slate-200 rounded-full">
             View All Collections
-            <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+            <ArrowRight size={18} />
           </Link>
         </div>
 

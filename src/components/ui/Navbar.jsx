@@ -21,7 +21,7 @@ export default function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
   const { cartCount } = useCart();
 
-  const isShopPage = pathname.startsWith("/products") || pathname.startsWith("/collections") || pathname.startsWith("/cart") || pathname.startsWith("/profile") || pathname.startsWith("/supported-by") || pathname.startsWith("/sponsorship") || pathname.startsWith("/financial-report") || pathname.startsWith("/activities");
+  const isShopPage = pathname.startsWith("/products") || pathname.startsWith("/collections") || pathname.startsWith("/cart") || pathname.startsWith("/profile") || pathname.startsWith("/supported-by") || pathname.startsWith("/sponsorship") || pathname.startsWith("/financial-report") || pathname.startsWith("/criticism-suggestions") || pathname.startsWith("/activities");
 
   const isActive = (link) => {
     if (link.dropdown) {
@@ -94,10 +94,10 @@ export default function Navbar() {
             {/* LOGO */}
             <Link href="/" className="flex-shrink-0 flex items-center">
               <img
-                src="/Logonavbar.png"
+                src="/Logonavbar.PNG"
                 alt="Arthakara Logo"
                 className={`transition-all duration-500 w-auto object-contain ${
-                  isShopPage || isScrolled ? "h-10 sm:h-12" : "h-12 sm:h-14"
+                  isShopPage || isScrolled ? "h-35 sm:h-35" : "h-40 sm:h-40"
                 }`}
               />
             </Link>
@@ -411,7 +411,8 @@ const navLinks = [
       { name: "Our Activities", path: "/activities" },
       { name: "Supported By", path: "/supported-by" },
       { name: "Sponsorship", path: "/sponsorship" },
-      { name: "Financial Report", path: "/financial-report" }
+      { name: "Financial Report", path: "/financial-report" },
+      { name: "Criticism & Suggestions", path: "/criticism-suggestions" }
     ]
   },
   { name: "Contact", path: "/#contact" }

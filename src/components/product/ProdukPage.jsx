@@ -91,9 +91,6 @@ export default function ProdukPage() {
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-slate-900 tracking-tight">
               Semua <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 to-teal-500">Produk</span>
             </h1>
-            <p className="text-slate-500 text-lg mt-4 max-w-xl">
-              Daftar koleksi produk lengkap kami. Temukan berbagai pilihan produk berkualitas terbaik.
-            </p>
           </div>
 
           {/* FILTER / SORT ACTIONS */}

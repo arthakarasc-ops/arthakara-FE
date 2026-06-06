@@ -63,7 +63,7 @@ export default function About() {
             About <span className="text-cyan-600">Arthakara</span>
           </h2>
           <p className="text-gray-700 text-base sm:text-lg leading-relaxed mb-6 sm:mb-8">
-            ARTHAKARA Student Company is a student-led organization committed to fostering entrepreneurial skills, innovation, and sustainable practices among young generations.
+            Arthakara Student Company is a company formed by 29 students of SMA Kolese Loyola, where “Artha” means value and “Kara” means creator, reflecting the idea of creating value through action. Arthakara focuses on transforming plastic waste into meaningful products with attention to environmental issues, especially the impact of plastic pollution on sea turtles. Through this initiative, the company aims to raise awareness among young people about caring for the environment & turning simple materials into something that carries purpose and impact.
           </p>
 
           <div className="flex flex-wrap gap-3 sm:gap-6">
