@@ -132,14 +132,11 @@ export default function ProfilePage() {
         alert(payData.message || "Gagal membuat sesi pembayaran.");
         return;
       }
-      if (window.snap) {
-        window.snap.pay(payData.snap_token, {
-          onSuccess: () => { alert("Pembayaran berhasil!"); window.location.reload(); },
-          onPending: () => { alert("Menunggu pembayaran diselesaikan."); window.location.reload(); },
-          onError: () => alert("Pembayaran gagal atau dibatalkan."),
-        });
+      if (payData.payment_url) {
+        alert("Kamu akan diarahkan ke halaman pembayaran Doku.");
+        window.location.href = payData.payment_url;
       } else {
-        alert("Sistem pembayaran belum siap. Silakan muat ulang halaman.");
+        alert("Sistem pembayaran belum siap. Silakan hubungi admin.");
       }
     } catch (err) {
       alert("Terjadi kesalahan sistem: " + err.message);

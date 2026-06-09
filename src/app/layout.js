@@ -2,7 +2,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "../components/context/AuthContext";
 import { CartProvider } from "../components/context/CartContext";
-import Script from "next/script";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,14 +27,7 @@ export default function RootLayout({ children }) {
             {children}
           </CartProvider>
         </AuthProvider>
-        
-        {/* Midtrans Snap Script */}
-        <Script 
-          src="https://app.midtrans.com/snap/snap.js"
-          data-client-key="Mid-client-KYxr2VdaVh6YqT3o"
-          strategy="beforeInteractive"
-        />
       </body>
     </html>
   );
-}
+}

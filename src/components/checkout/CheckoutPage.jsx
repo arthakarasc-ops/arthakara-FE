@@ -81,7 +81,7 @@ export default function CheckoutPage() {
   const [orderResult, setOrderResult] = useState(null);
   const [orderType, setOrderType] = useState("delivery"); // 'delivery' | 'take_away'
   const [tanggalLahir, setTanggalLahir] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState("whatsapp"); // 'whatsapp' | 'midtrans'
+  const [paymentMethod, setPaymentMethod] = useState("whatsapp"); // 'whatsapp' | 'doku'
 
   // States for RajaOngkir
   const [provinces, setProvinces] = useState([]);
@@ -176,7 +176,7 @@ export default function CheckoutPage() {
 
 
   // =========================
-  // HANDLER: Buat Order → Bayar Midtrans
+  // HANDLER: Buat Order → Bayar Doku
   // =========================
   const handleOrder = async () => {
     if (!isAuthenticated) {
@@ -300,6 +300,9 @@ export default function CheckoutPage() {
         return;
       }
 
+      // ============================================
+      // STEP 2: Buat Transaksi Doku Checkout
+      // ============================================
       const payRes = await fetch("https://arthakara.id/api/pay", {
         method: "POST",
         headers: {
@@ -312,44 +315,18 @@ export default function CheckoutPage() {
 
       const payData = await payRes.json();
 
-      if (!payRes.ok) {
+      if (!payRes.ok || !payData.isSuccess) {
         alert(payData.message || "Gagal membuat transaksi pembayaran");
         setIsLoading(false);
         return;
       }
 
-      const snapToken = payData.snap_token;
-
       // ============================================
-      // STEP 3: Tampilkan Pop-up Midtrans Snap
+      // STEP 3: Redirect ke halaman pembayaran Doku
       // ============================================
-      if (window.snap) {
-        window.snap.pay(snapToken, {
-          onSuccess: function (result) {
-            clearAll();
-            alert("Pembayaran berhasil! Terima kasih telah berbelanja di Arthakara.");
-            router.push("/profile");
-          },
-          onPending: function (result) {
-            clearAll();
-            alert("Pembayaran pending. Silakan selesaikan pembayaran sesuai instruksi.");
-            router.push("/profile");
-          },
-          onError: function (result) {
-            clearAll();
-            alert("Pembayaran gagal. Pesanan telah dibuat, silakan coba bayar lagi dari halaman profil.");
-            console.error("Payment Error:", result);
-            router.push("/profile");
-          },
-          onClose: function () {
-            clearAll();
-            alert("Pop-up pembayaran ditutup. Kamu bisa menyelesaikan pembayaran nanti di halaman profil.");
-            router.push("/profile");
-          },
-        });
-      } else {
-        alert("Midtrans belum dimuat. Coba refresh halaman ini.");
-      }
+      clearAll();
+      alert("Pesanan berhasil dibuat! Kamu akan diarahkan ke halaman pembayaran Doku.");
+      window.location.href = payData.payment_url;
     } catch (err) {
       console.error("Checkout Error Full:", err);
       // Jika error punya detail dari Laravel (response.json() tadi gagal)
@@ -527,13 +504,13 @@ export default function CheckoutPage() {
                 </div>
               </label>
               
-              <label className={`flex-1 flex items-start gap-3 p-5 rounded-2xl border-2 cursor-pointer transition-all ${paymentMethod === 'midtrans' ? 'border-cyan-600 bg-cyan-50 shadow-md shadow-cyan-100' : 'border-slate-200 hover:border-cyan-200 hover:bg-slate-50'}`}>
-                <input type="radio" name="paymentMethod" value="midtrans" checked={paymentMethod === 'midtrans'} onChange={() => setPaymentMethod('midtrans')} className="hidden" />
+              <label className={`flex-1 flex items-start gap-3 p-5 rounded-2xl border-2 cursor-pointer transition-all ${paymentMethod === 'doku' ? 'border-cyan-600 bg-cyan-50 shadow-md shadow-cyan-100' : 'border-slate-200 hover:border-cyan-200 hover:bg-slate-50'}`}>
+                <input type="radio" name="paymentMethod" value="doku" checked={paymentMethod === 'doku'} onChange={() => setPaymentMethod('doku')} className="hidden" />
                 <div className="flex-1">
-                  <div className={`font-bold ${paymentMethod === 'midtrans' ? 'text-cyan-800' : 'text-slate-700'} flex justify-between items-center`}>
-                    Midtrans
+                  <div className={`font-bold ${paymentMethod === 'doku' ? 'text-cyan-800' : 'text-slate-700'} flex justify-between items-center`}>
+                    Doku
                   </div>
-                  <div className="text-sm mt-1 text-slate-500">Otomatisasi Virtual Account, CC, & E-Wallet</div>
+                  <div className="text-sm mt-1 text-slate-500">Virtual Account, QRIS, & E-Wallet</div>
                 </div>
               </label>
             </div>
@@ -604,7 +581,7 @@ export default function CheckoutPage() {
             <div className="mt-6 pt-4 border-t border-slate-100 text-center flex flex-col gap-2 items-center">
               <svg className="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
               <p className="text-xs text-slate-500">
-                Pembayaran diproses secara aman oleh <span className="font-semibold text-slate-700">Midtrans</span>
+                Pembayaran diproses secara aman oleh <span className="font-semibold text-slate-700">Doku</span>
               </p>
             </div>
           </div>
