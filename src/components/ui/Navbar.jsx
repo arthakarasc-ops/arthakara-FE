@@ -94,7 +94,7 @@ export default function Navbar() {
             {/* LOGO */}
             <Link href="/" className="flex-shrink-0 flex items-center">
               <img
-                src="/Logonavbar.PNG"
+                src="/Logonavbar.png"
                 alt="Arthakara Logo"
                 className={`transition-all duration-500 w-auto object-contain ${
                   isShopPage || isScrolled ? "h-35 sm:h-35" : "h-40 sm:h-40"
