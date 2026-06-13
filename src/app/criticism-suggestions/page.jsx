@@ -118,12 +118,12 @@ export default function CriticismPage() {
 
               {/* Nama */}
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Nama</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Name</label>
                 <input
                   required
                   type="text"
                   value={formData.name}
-                  placeholder="Masukkan nama Anda"
+                  placeholder="Enter your name"
                   className="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-cyan-500 outline-none text-slate-900 placeholder:text-slate-300 transition-all"
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   />
@@ -143,7 +143,7 @@ export default function CriticismPage() {
                     />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">No. Telp</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">Phone Number</label>
                   <input
                     required
                     type="tel"
