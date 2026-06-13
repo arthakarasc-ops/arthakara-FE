@@ -151,11 +151,6 @@ export default function ProductDetail() {
   };
 
   const handleBulkCheckout = () => {
-    if (!isAuthenticated) {
-        setShowLoginModal(true);
-        return;
-    }
-
     const collapsedConfigs = getCollapsedConfigs();
     const directBuyItems = collapsedConfigs.map(config => {
         const scentExtraTotal = config.scents.reduce((sum, s) => sum + (s.extra_price || 0), 0);
@@ -198,7 +193,6 @@ export default function ProductDetail() {
   };
 
   const handleDirectCheckout = () => {
-    if (!isAuthenticated) return setShowLoginModal(true);
     const directBuyItems = [{
         product_variant_id: selectedVariant.id,
         quantity: quantity,

@@ -36,12 +36,7 @@ export default function CheckoutPage() {
   const { token, isAuthenticated } = useAuth();
   const { cartItems, cartTotal, clearAll } = useCart();
 
-  // Proteksi: Redirect ke login jika belum terautentikasi
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.push("/login?redirect=/checkout");
-    }
-  }, [isAuthenticated, router]);
+  // Proteksi: Redirect ke login dihapus untuk memungkinkan guest checkout via WA
 
   // Data produk dari URL params (untuk Direct Buy)
   const directBuyItemsParam = params.get("direct_buy_items");
@@ -179,9 +174,9 @@ export default function CheckoutPage() {
   // HANDLER: Buat Order → Bayar Doku
   // =========================
   const handleOrder = async () => {
-    if (!isAuthenticated) {
-      alert("Kamu harus login dulu untuk melakukan order.");
-      router.push("/login");
+    if (!isAuthenticated && paymentMethod === "doku") {
+      alert("Kamu harus login terlebih dahulu untuk menggunakan metode pembayaran Doku.");
+      router.push("/login?redirect=/checkout");
       return;
     }
 
@@ -240,13 +235,17 @@ export default function CheckoutPage() {
         })),
       };
 
+      const headers = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+      };
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
       const orderRes = await fetch("https://arthakara.id/api/orders/create", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        headers: headers,
         body: JSON.stringify(payload),
       });
 
