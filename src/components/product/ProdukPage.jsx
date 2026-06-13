@@ -89,7 +89,7 @@ export default function ProdukPage() {
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-8 border-b border-slate-100 pb-8">
           <div className="max-w-2xl">
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-slate-900 tracking-tight">
-              Semua <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 to-teal-500">Produk</span>
+              All <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 to-teal-500">Products</span>
             </h1>
           </div>
 
