@@ -40,10 +40,10 @@ export default function CriticismPage() {
       if (response.ok) {
         setIsSuccess(true);
       } else {
-        alert("Maaf, terjadi kesalahan saat mengirim. Silakan coba lagi.");
+        alert("Sorry, there was an error sending your message. Please try again.");
       }
     } catch (error) {
-      alert("Terjadi masalah koneksi. Silakan coba lagi.");
+      alert("Sorry, there was an error sending your message. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -63,18 +63,18 @@ export default function CriticismPage() {
           // Tampilan Sukses
           <div className="bg-white p-12 rounded-3xl shadow-sm border border-slate-100 text-center animate-in fade-in duration-500">
             <div className="text-6xl mb-6">✅</div>
-            <h2 className="text-3xl font-bold text-slate-900 mb-4">Terima Kasih!</h2>
-            <p className="text-slate-600 mb-8">Masukan Anda sangat berharga bagi perkembangan Arthakara.</p>
+            <h2 className="text-3xl font-bold text-slate-900 mb-4">Thank You!</h2>
+            <p className="text-slate-600 mb-8">Your feedback is valuable to the development of Arthakara.</p>
             
             <div className="flex flex-col gap-3">
               <button 
                 onClick={handleReset}
                 className="w-full bg-slate-900 text-white py-3 rounded-xl font-bold hover:bg-cyan-600 transition-all"
                 >
-                Kirim Masukan Lain
+                Send Another Feedback
               </button>
               <Link href="/" className="w-full text-slate-600 py-3 font-medium hover:text-slate-900 transition-colors">
-                ← Kembali ke Halaman Utama
+                ← Back to Home Page
               </Link>
             </div>
           </div>
@@ -83,11 +83,11 @@ export default function CriticismPage() {
           <>
             <Link href="/" className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-900 transition-all mb-6 font-medium">
               <ArrowLeft size={20} />
-              Kembali
+              Back
             </Link>
 
             <h1 className="text-4xl font-bold text-slate-900 mb-2">Criticism & Suggestions</h1>
-            <p className="text-slate-600 mb-10">Kami menghargai masukan Anda untuk perkembangan Arthakara.</p>
+            <p className="text-slate-600 mb-10">We value your feedback for the development of Arthakara.</p>
 
             <form onSubmit={handleSubmit} className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 space-y-6">
               {/* Rating */}
@@ -157,12 +157,12 @@ export default function CriticismPage() {
 
               {/* Kritik & Saran */}
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Kritik & Saran</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Criticism & Suggestions</label>
                 <textarea
                   required
                   rows={5}
                   value={formData.message}
-                  placeholder="Tuliskan masukan Anda di sini..."
+                  placeholder="Write your feedback here..."
                   className="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-cyan-500 outline-none text-slate-900 placeholder:text-slate-300 transition-all"
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                   ></textarea>
@@ -175,7 +175,7 @@ export default function CriticismPage() {
                   isSubmitting ? "bg-slate-400 cursor-not-allowed" : "bg-slate-900 text-white hover:bg-cyan-600"
                 }`}
                 >
-                {isSubmitting ? "Mengirim..." : "Kirim Masukan"}
+                {isSubmitting ? "Sending..." : "Send Feedback"}
               </button>
             </form>
           </>
