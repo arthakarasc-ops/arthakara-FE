@@ -194,7 +194,7 @@ export default function CollectionPage({ slug }) {
                       </span>
                     </div>
                     <p className="text-slate-500 text-lg">
-                      {collection.description ?? "Eksplorasi rangkaian produk unggulan dari koleksi ini."}
+                      {collection.description ?? "Explore the range of featured products from this collection."}
                     </p>
                   </div>
 
