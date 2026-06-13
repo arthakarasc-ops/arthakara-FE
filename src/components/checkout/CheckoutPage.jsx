@@ -300,8 +300,14 @@ export default function CheckoutPage() {
         
         clearAll();
         alert("Pesanan berhasil dibuat! Kamu akan diarahkan ke WhatsApp untuk melakukan pembayaran.");
-        router.push("/profile");
-        window.location.href = `https://api.whatsapp.com/send?phone=${waNumber}&text=${encodedText}`;
+        if (isAuthenticated) {
+          router.push("/profile");
+        } else {
+          router.push("/");
+        }
+        setTimeout(() => {
+          window.location.href = `https://api.whatsapp.com/send?phone=${waNumber}&text=${encodedText}`;
+        }, 100);
         setIsLoading(false);
         return;
       }
