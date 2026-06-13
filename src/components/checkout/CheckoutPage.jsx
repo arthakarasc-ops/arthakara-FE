@@ -276,7 +276,14 @@ export default function CheckoutPage() {
         const totalFormatted = totalAmount.toLocaleString("id-ID");
         const shippingFormatted = shippingAmount.toLocaleString("id-ID");
         
-        const itemDetails = checkoutItems.map(item => `- ${item.name} (x${item.quantity})`).join('\n');
+        const itemDetails = checkoutItems.map(item => {
+          const scentNames = (item.scentDetails || [])
+            .map(scent => scent?.name)
+            .filter(Boolean)
+            .join(', ');
+          const scentSuffix = scentNames ? ` (Wangi: ${scentNames})` : '';
+          return `- ${item.name}${scentSuffix} (x${item.quantity})`;
+        }).join('\n');
         
         let text = `Halo Arthakara, saya ingin melakukan konfirmasi pembayaran pesanan saya:\n\n`;
         text += `*Order ID:* #${orderId}\n`;
