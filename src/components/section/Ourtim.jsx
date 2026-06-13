@@ -12,7 +12,7 @@
     const divisions = {
       directors: {
         name: "Board of Directors",
-        desc: "Tim pimpinan eksekutif yang mengarahkan visi dan strategi Arthakara.",
+        desc: "The executive leadership team that directs Arthakara's vision and strategy.",
         members: [
           { name: "Matthew", fullName: "Matthew Edsel A.", role: "CEO", photo: "/image/Matthew E - CEO.jpg", bio: "Always look up, don't get too complacent with who you are right now. There will always be someone above us, so keep looking up and never let yourself become arrogant." },
           { name: "Felicia", fullName: "Felicia Tan", role: "Director of Sales", photo: "/image/Felicia - Director of Sales.jpg", bio: "Success is not final, failure is not fatal." },
@@ -26,7 +26,7 @@
       },
       sales: {
         name: "Sales",
-        desc: "Tim yang fokus pada strategi penjualan dan ekspansi pasar.",
+        desc: "The team focused on sales strategy and market expansion.",
         members: [
           { name: "Felicia", fullName: "Felicia Tan", role: "Director of Sales", photo: "/image/Felicia - Director of Sales.jpg", bio: "Success is not final, failure is not fatal." },
           { name: "Freya", fullName: "Freya Georgia S.", role: "Sales & Inventory Manager", photo: "/image/Freya - Sales & Inventory Manager.jpg", bio: "Even strength must bow down to wisdom." },
@@ -36,7 +36,7 @@
       },
       production: {
         name: "Production",
-        desc: "Mengubah ide menjadi produk nyata dengan standar tinggi.",
+        desc: "Turning ideas into tangible products with high standards.",
         members: [
           { name: "Revi", fullName: "Avrilya Revi L.", role: "Director of Production", photo: "/image/Revi - Director of Production.jpg", bio: "Love ought to show itself in deeds." },
           { name: "Cheryl", fullName: "Cheryl Ashley T.", role: "Production Manager", photo: "/image/Cheryl - production manager.jpg", bio: "If you knew you were 100 rejections away from your dream." },
@@ -48,7 +48,7 @@
       },
       finance: {
         name: "Finance",
-        desc: "Mengelola stabilitas keuangan dan investasi strategis.",
+        desc: "Financial stability and strategic investment management.",
         members: [
           { name: "Vino", fullName: "Vino Leornado", role: "Director of Finance", photo: "/image/Vino - Director of Finance.jpg" , bio: "Dream big, start with small steps." },
           { name: "Khalfano", fullName: "Khalfano Lazuardi G.", role: "Finance Manager", photo: "/image/Khalfano - Finance Manager.jpg", bio: "Sometimes life is like the sea." }
@@ -56,7 +56,7 @@
       },
       marketing: {
         name: "Marketing",
-        desc: "Pengembangan brand dan komunikasi pemasaran kreatif.",
+        desc: "Brand development and creative marketing communications.",
         members: [
           { name: "Adrienne", fullName: "Emanuella Adrienne", role: "Director of Marketing", photo: "/image/Adrienne - Mrk.jpg", bio: "Stop wishing, just do it." },
           { name: "Davis", fullName: "Kurniawan Davis M.", role: "Market Research", photo: "/image/Davis - market research.jpg", bio: "Kemarin adalah sejarah, hari ini misteri." },
@@ -68,7 +68,7 @@
       },
       pr: {
         name: "Public Relations",
-        desc: "Membangun hubungan harmonis antara perusahaan dan publik.",
+        desc: "Building harmonious relationships between the company and the public.",
         members: [
           { name: "Miranda", fullName: "Miranda Debora S.", role: "Director of PR", photo: "/image/Miranda - Director of PR.png", bio: "The grass is sometimes greener because it is fake." },
           { name: "Felice", fullName: "Eleonora Felicia P. S.", role: "PR Manager", photo: "/image/Felice - PR Manager.jpg", bio: "Trust the process." },
@@ -79,7 +79,7 @@
       },
       hrd: {
         name: "HRD",
-        desc: "Mengembangkan potensi SDM dan kultur perusahaan.",
+        desc: "Developing human potential and company culture.",
         members: [
           { name: "Nasha", fullName: "Angela Novenasha G.", role: "Director of HRD", photo: "/image/Nasha - HRD.jpg", bio: "Speak softly and carry a big stick." },
           { name: "Jessica", fullName: "Jessica Chie S.", role: "Attendance & Payroll", photo: "/image/Jessica - attendance & payroll.jpg", bio: "Don't wish for it, work for it." },
