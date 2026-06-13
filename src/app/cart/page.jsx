@@ -28,14 +28,14 @@ export default function CartPage() {
         <div className="mb-12 border-b border-slate-100 pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
             <h1 className="text-4xl sm:text-5xl font-bold text-slate-900 tracking-tight">
-              Keranjang Belanja
+              Shopping Cart
             </h1>
             <p className="text-slate-500 mt-2 text-lg">
-              {cartItems.length} produk terpilih
+              {cartItems.length} products selected
             </p>
           </div>
           <Link href="/products" className="text-sm font-semibold text-slate-900 flex items-center gap-2 hover:text-cyan-600 transition-colors group">
-            Lanjut Eksplorasi
+            Continue Exploration
             <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
@@ -45,11 +45,11 @@ export default function CartPage() {
             <div className="w-20 h-20 mb-6 text-slate-200">
               <ShoppingBag size={80} strokeWidth={1} />
             </div>
-            <h2 className="text-2xl font-bold text-slate-900 mb-2 tracking-tight">Keranjang Belanja Kosong</h2>
-            <p className="text-slate-500 mb-8 max-w-sm">Anda belum memiliki produk di dalam keranjang. Silakan jelajahi katalog produk kami.</p>
+            <h2 className="text-2xl font-bold text-slate-900 mb-2 tracking-tight">Shopping Cart Empty</h2>
+            <p className="text-slate-500 mb-8 max-w-sm">You don't have any products in your cart yet. Please explore our product catalog.</p>
             <Link href="/products">
               <button className="bg-cyan-600 text-white px-8 py-3 rounded-full font-semibold hover:bg-cyan-700 transition-all shadow-lg shadow-cyan-600/20 flex items-center gap-2">
-                Mulai Belanja <ArrowRight size={18} />
+                Start Shopping <ArrowRight size={18} />
               </button>
             </Link>
           </div>
@@ -94,7 +94,7 @@ export default function CartPage() {
                             {item.color}
                         </p>
                         <p className="flex items-start gap-2">
-                            <span className="opacity-70 mt-0.5">Aroma:</span>
+                            <span className="opacity-70 mt-0.5">Scent:</span>
                             <span className="text-slate-700 font-medium">{item.scents.map(s => s.name).join(", ")}</span>
                         </p>
                       </div>
@@ -131,7 +131,7 @@ export default function CartPage() {
             {/* SUMMARY (STICKY) */}
             <div className="lg:col-span-5 xl:col-span-4">
               <div className="bg-slate-50/50 p-8 sm:p-10 rounded-3xl border border-slate-100 sticky top-32">
-                <h2 className="text-2xl font-bold mb-6 text-slate-900 tracking-tight">Ringkasan</h2>
+                <h2 className="text-2xl font-bold mb-6 text-slate-900 tracking-tight">Summary</h2>
                 
                 <div className="space-y-4 mb-8 pb-8 border-b border-slate-200/60">
                   <div className="flex justify-between text-slate-600">
@@ -139,8 +139,8 @@ export default function CartPage() {
                     <span className="font-medium text-slate-900">Rp {cartTotal.toLocaleString("id-ID")}</span>
                   </div>
                   <div className="flex justify-between text-slate-600">
-                    <span>Pengiriman</span>
-                    <span className="text-sm italic text-slate-400">Dihitung di checkout</span>
+                    <span>Shipping</span>
+                    <span className="text-sm italic text-slate-400">Calculated at checkout</span>
                   </div>
                 </div>
 
@@ -153,7 +153,7 @@ export default function CartPage() {
 
                 <Link href="/checkout" className="block w-full">
                   <button className="w-full bg-cyan-600 text-white py-4 rounded-full font-bold tracking-wide hover:bg-cyan-700 shadow-lg shadow-cyan-600/20 transition-all flex justify-center items-center gap-2">
-                    Lanjut ke Pembayaran <ArrowRight size={18} />
+                    Proceed to Checkout <ArrowRight size={18} />
                   </button>
                 </Link>
                 
