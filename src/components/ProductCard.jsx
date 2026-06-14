@@ -61,7 +61,7 @@ export default function ProductCard({ product, index = 0 }) {
                 <img
                   src={src}
                   alt={`${product.name} - foto ${i + 1}`}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-20"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-100"
                 />
               </div>
             ))}
