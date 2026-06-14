@@ -381,7 +381,7 @@ export default function ProductDetail() {
 
                         {/* Thumbnail strip */}
                         {hasMultiple && (
-                          <div className="grid grid-cols-2 gap-2">
+                          <div className={`grid gap-2 ${imgs.length === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
                             {imgs.map((src, i) => (
                               <button
                                 key={i}

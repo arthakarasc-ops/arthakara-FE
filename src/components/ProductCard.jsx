@@ -10,7 +10,7 @@ export default function ProductCard({ product, index = 0 }) {
   // Kumpulkan semua URL gambar dari usage_images (array baru) atau fallback ke usage_image tunggal
   const images = (() => {
     if (Array.isArray(product.usage_images) && product.usage_images.length > 0) {
-      return product.usage_images.slice(0, 2).map((url) =>
+      return product.usage_images.slice(0, 3).map((url) =>
         url.startsWith("http") ? url : `${IMAGE_BASE_URL}/storage/${url}`
       );
     }
