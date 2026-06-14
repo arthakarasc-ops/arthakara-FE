@@ -1,12 +1,12 @@
 "use client";
 
 import { useParams, useSearchParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { fetchProductDetail } from "@/app/api/ProductApi";
 import { useAuth } from "@/components/context/AuthContext";
 import { useCart } from "@/components/context/CartContext";
 import LoginModal from "@/components/ui/LoginModal";
-import { Check, Minus, Plus, ShoppingBag, ShoppingCart, ArrowRight, X, Copy } from "lucide-react";
+import { Check, Minus, Plus, ShoppingBag, ShoppingCart, ArrowRight, X, Copy, ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -16,8 +16,33 @@ export default function ProductDetail() {
   const BASE_URL = "https://arthakara.id/api";
   const IMAGE_BASE_URL = "https://arthakara.id";
 
+
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // =============================
+  // SLIDER STATE
+  // =============================
+  const [imgCurrent, setImgCurrent] = useState(0);
+  const sliderAutoRef = useRef(null);
+
+  // Computed image list dari API response
+  const getDetailImages = (p) => {
+    if (!p) return ["/no-image.png"];
+    if (Array.isArray(p.usage_images) && p.usage_images.length > 0) {
+      return p.usage_images.map((url) =>
+        url.startsWith("http") ? url : `${IMAGE_BASE_URL}/storage/${url}`
+      );
+    }
+    if (p.usage_image) {
+      return [
+        p.usage_image.startsWith("http")
+          ? p.usage_image
+          : `${IMAGE_BASE_URL}/storage/${p.usage_image}`,
+      ];
+    }
+    return ["/no-image.png"];
+  };
 
   const [selectedVariant, setSelectedVariant] = useState(null);
   const [quantity, setQuantity] = useState(1);
@@ -42,6 +67,45 @@ export default function ProductDetail() {
 
     loadData();
   }, [id]);
+
+  // Reset slider state ketika product berubah
+  useEffect(() => {
+    setImgCurrent(0);
+  }, [product]);
+
+  // Auto-slide setiap 4 detik
+  useEffect(() => {
+    if (!product) return;
+    const imgs = getDetailImages(product);
+    if (imgs.length <= 1) return;
+    sliderAutoRef.current = setInterval(() => {
+      setImgCurrent((prev) => (prev + 1) % imgs.length);
+    }, 4000);
+    return () => clearInterval(sliderAutoRef.current);
+  }, [product]);
+
+  const resetSliderAuto = (imgs) => {
+    clearInterval(sliderAutoRef.current);
+    if (imgs.length <= 1) return;
+    sliderAutoRef.current = setInterval(() => {
+      setImgCurrent((prev) => (prev + 1) % imgs.length);
+    }, 4000);
+  };
+
+  const detailGoTo = (index, imgs) => {
+    setImgCurrent(index);
+    resetSliderAuto(imgs);
+  };
+
+  const detailNext = (imgs) => {
+    setImgCurrent((prev) => (prev + 1) % imgs.length);
+    resetSliderAuto(imgs);
+  };
+
+  const detailPrev = (imgs) => {
+    setImgCurrent((prev) => (prev - 1 + imgs.length) % imgs.length);
+    resetSliderAuto(imgs);
+  };
 
   // Reset qty when variant changes to ensure it doesn't exceed new stock
   useEffect(() => {
@@ -249,21 +313,93 @@ export default function ProductDetail() {
         <div className="bg-white rounded-3xl shadow-sm border border-slate-100/50 overflow-hidden">
             <div className="flex flex-col lg:flex-row">
 
-                {/* IMAGE */}
+                {/* IMAGE — SLIDER */}
                 <div className="w-full lg:w-1/2 p-4 sm:p-8 border-b lg:border-b-0 lg:border-r border-slate-100 bg-slate-50/50">
-                    <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-slate-100">
-                        <img
-                            src={
-                              product?.usage_image
-                                ? product.usage_image.startsWith("http")
-                                  ? product.usage_image
-                                  : `${IMAGE_BASE_URL}/storage/${product.usage_image}`
-                                : "/no-image.png"
-                            }
-                            alt={product?.name}
-                            className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
-                        />
-                    </div>
+                  {(() => {
+                    const imgs = getDetailImages(product);
+                    const hasMultiple = imgs.length > 1;
+                    return (
+                      <div className="space-y-3">
+                        {/* Main Slider */}
+                        <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-slate-100 group">
+                          {/* Slides wrapper */}
+                          <div
+                            className="flex h-full transition-transform duration-500 ease-out"
+                            style={{
+                              width: `${imgs.length * 100}%`,
+                              transform: `translateX(-${(imgCurrent * 100) / imgs.length}%)`,
+                            }}
+                          >
+                            {imgs.map((src, i) => (
+                              <div
+                                key={i}
+                                className="h-full shrink-0"
+                                style={{ width: `${100 / imgs.length}%` }}
+                              >
+                                <img
+                                  src={src}
+                                  alt={`${product?.name} - foto ${i + 1}`}
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* Arrows — hanya jika > 1 gambar */}
+                          {hasMultiple && (
+                            <>
+                              <button
+                                onClick={() => detailPrev(imgs)}
+                                className="absolute left-3 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm hover:bg-white text-slate-700 p-2.5 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 z-10"
+                              >
+                                <ChevronLeft size={20} strokeWidth={2.5} />
+                              </button>
+                              <button
+                                onClick={() => detailNext(imgs)}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm hover:bg-white text-slate-700 p-2.5 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 z-10"
+                              >
+                                <ChevronRight size={20} strokeWidth={2.5} />
+                              </button>
+
+                              {/* Dots */}
+                              <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2 z-10 pointer-events-none">
+                                {imgs.map((_, i) => (
+                                  <button
+                                    key={i}
+                                    onClick={() => detailGoTo(i, imgs)}
+                                    className={`pointer-events-auto rounded-full transition-all duration-300 ${
+                                      i === imgCurrent
+                                        ? "w-6 h-2.5 bg-cyan-500"
+                                        : "w-2.5 h-2.5 bg-white/60 hover:bg-white/90"
+                                    }`}
+                                  />
+                                ))}
+                              </div>
+                            </>
+                          )}
+                        </div>
+
+                        {/* Thumbnail strip */}
+                        {hasMultiple && (
+                          <div className="grid grid-cols-2 gap-2">
+                            {imgs.map((src, i) => (
+                              <button
+                                key={i}
+                                onClick={() => detailGoTo(i, imgs)}
+                                className={`aspect-square rounded-xl overflow-hidden border-2 transition-all duration-300 ${
+                                  i === imgCurrent
+                                    ? "border-cyan-500 opacity-100 shadow-md"
+                                    : "border-slate-200 opacity-60 hover:opacity-90"
+                                }`}
+                              >
+                                <img src={src} alt={`Thumbnail ${i + 1}`} className="w-full h-full object-cover" />
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 {/* DETAILS */}
