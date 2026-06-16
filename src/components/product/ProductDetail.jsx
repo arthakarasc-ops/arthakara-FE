@@ -288,10 +288,10 @@ export default function ProductDetail() {
       <div className="min-h-screen bg-slate-50 flex justify-center items-center">
           <div className="text-center p-10 bg-white rounded-2xl shadow-sm border border-slate-100">
             <ShoppingBag size={48} className="mx-auto text-slate-300 mb-4" />
-            <h2 className="text-xl font-bold text-slate-700 mb-2">Produk Tidak Ditemukan</h2>
-            <p className="text-slate-500">Maaf, produk yang Anda cari tidak tersedia atau telah dihapus.</p>
+            <h2 className="text-xl font-bold text-slate-700 mb-2">Product Not Found</h2>
+            <p className="text-slate-500">Sorry, the product you are looking for is not available or has been removed.</p>
             <button onClick={() => router.push('/products')} className="mt-6 px-6 py-2 bg-cyan-600 text-white rounded-full hover:bg-cyan-700 transition-colors">
-                Kembali ke Katalog
+                Back to Catalog
             </button>
           </div>
       </div>
@@ -427,11 +427,11 @@ export default function ProductDetail() {
                     <div className="mb-8">
                         <div className="flex justify-between items-end mb-3">
                             <h3 className="font-semibold text-slate-900">
-                                Pilih Warna <span className="text-cyan-600">*</span>
+                                Choose Color <span className="text-cyan-600">*</span>
                             </h3>
                             {selectedVariant && (
                                 <span className={`text-sm font-medium ${selectedVariant.stock > 0 ? "text-emerald-600" : "text-red-500"}`}>
-                                    {selectedVariant.stock > 0 ? `Stok: ${selectedVariant.stock}` : "Stok Habis"}
+                                    {selectedVariant.stock > 0 ? `Stock: ${selectedVariant.stock}` : "Out of Stock"}
                                 </span>
                             )}
                         </div>
@@ -463,14 +463,14 @@ export default function ProductDetail() {
                             })}
                         </div>
                         ) : (
-                        <p className="text-slate-500 text-sm italic">Tidak ada varian tersedia.</p>
+                        <p className="text-slate-500 text-sm italic">No variants available.</p>
                         )}
                     </div>
 
                     {/* QTY */}
                     <div className="mb-8 flex-1">
                         <h3 className="font-semibold text-slate-900 mb-3">
-                            Kuantitas <span className="text-cyan-600">*</span>
+                            Quantity <span className="text-cyan-600">*</span>
                         </h3>
                         <div className="flex items-center bg-slate-100 rounded-full border border-slate-200 p-1 w-max">
                             <button
@@ -501,7 +501,7 @@ export default function ProductDetail() {
                                 disabled={!selectedVariant || selectedVariant.stock === 0}
                                 className="flex-1 bg-cyan-600 text-white py-4 rounded-full font-bold shadow-md hover:bg-cyan-700 hover:shadow-lg disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none disabled:cursor-not-allowed transition-all duration-300 flex justify-center items-center gap-2"
                             >
-                                {selectedVariant?.stock === 0 ? "Stok Habis" : "Lanjut Pilih Wangi"}
+                                {selectedVariant?.stock === 0 ? "Out of Stock" : "Continue to Choose Scent"}
                                 {selectedVariant?.stock !== 0 && <ArrowRight size={20} />}
                             </button>
                         ) : (
@@ -511,14 +511,14 @@ export default function ProductDetail() {
                                     disabled={!selectedVariant || selectedVariant.stock === 0 || addingToCart}
                                     className="flex-1 py-4 rounded-full font-bold border-2 border-slate-900 text-slate-900 hover:bg-slate-900 hover:text-white transition-all disabled:border-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed flex justify-center items-center gap-2"
                                 >
-                                    <ShoppingCart size={20} /> Ke Keranjang
+                                    <ShoppingCart size={20} /> Add to Cart
                                 </button>
                                 <button
                                     onClick={handleDirectCheckout}
                                     disabled={!selectedVariant || selectedVariant.stock === 0 || addingToCart}
                                     className="flex-1 bg-cyan-600 text-white py-4 rounded-full font-bold shadow-md hover:bg-cyan-700 hover:shadow-lg disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none disabled:cursor-not-allowed transition-all duration-300"
                                 >
-                                    Beli Sekarang
+                                    Buy Now
                                 </button>
                             </>
                         )}
@@ -539,8 +539,8 @@ export default function ProductDetail() {
                 {/* WIZARD HEADER */}
                 <div className="flex items-center justify-between p-6 border-b border-slate-100 bg-slate-50/50">
                     <div>
-                        <h2 className="text-2xl font-bold text-slate-900">Konfigurasi Aroma</h2>
-                        <p className="text-slate-500 text-sm mt-1">Pilih 2 aroma untuk setiap produk yang Anda beli ({quantity} produk)</p>
+                        <h2 className="text-2xl font-bold text-slate-900">Configure Scent</h2>
+                        <p className="text-slate-500 text-sm mt-1">Choose 2 scents for each product you buy ({quantity} products)</p>
                     </div>
                     <button onClick={() => setShowWizard(false)} className="p-2 rounded-full hover:bg-slate-200 text-slate-500 transition-colors">
                         <X size={24} />
@@ -557,47 +557,48 @@ export default function ProductDetail() {
                                         <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-cyan-100 text-cyan-700 text-xs mr-2">
                                             {index + 1}
                                         </span>
-                                        Produk {index + 1}
+                                        Product {index + 1}
                                     </h3>
                                     {index === 0 && quantity > 1 && (
                                         <button 
                                             onClick={() => copyToAll(index)}
                                             className="text-xs font-semibold flex items-center gap-1.5 text-cyan-600 hover:text-cyan-800 bg-cyan-50 px-3 py-1.5 rounded-full transition-colors"
                                         >
-                                            <Copy size={14} /> Samakan ke semua
+                                            <Copy size={14} /> Copy to all
                                         </button>
                                     )}
                                 </div>
                                 
                                 {/* SCENT SLOTS */}
-                                <div className="flex gap-3 mb-4">
-                                    {/* Slot 1 */}
-                                    <div className="flex-1 border-2 border-dashed border-slate-200 rounded-xl p-3 flex flex-col justify-center min-h-[60px] bg-slate-50/50">
-                                        {config[0] ? (
-                                            <div className="flex items-center justify-between bg-cyan-50 text-cyan-800 px-3 py-2 rounded-lg border border-cyan-100">
-                                                <span className="font-medium text-sm">{config[0].name}</span>
-                                                <button onClick={() => removeScentFromConfig(index, 0)} className="text-cyan-600 hover:text-cyan-900"><X size={16}/></button>
-                                            </div>
-                                        ) : (
-                                            <span className="text-slate-400 text-sm text-center font-medium">Slot Wangi 1</span>
-                                        )}
-                                    </div>
-                                    {/* Slot 2 */}
-                                    <div className="flex-1 border-2 border-dashed border-slate-200 rounded-xl p-3 flex flex-col justify-center min-h-[60px] bg-slate-50/50">
-                                        {config[1] ? (
-                                            <div className="flex items-center justify-between bg-cyan-50 text-cyan-800 px-3 py-2 rounded-lg border border-cyan-100">
-                                                <span className="font-medium text-sm">{config[1].name}</span>
-                                                <button onClick={() => removeScentFromConfig(index, 1)} className="text-cyan-600 hover:text-cyan-900"><X size={16}/></button>
-                                            </div>
-                                        ) : (
-                                            <span className="text-slate-400 text-sm text-center font-medium">Slot Wangi 2</span>
-                                        )}
-                                    </div>
-                                </div>
+                                <div className="flex flex-col sm:flex-row gap-3 mb-4">
+    {/* Slot 1 */}
+    <div className="flex-1 border-2 border-dashed border-slate-200 rounded-xl p-3 flex flex-col justify-center min-h-[60px] bg-slate-50/50">
+        {config[0] ? (
+            <div className="flex items-center justify-between bg-cyan-50 text-cyan-800 px-3 py-2 rounded-lg border border-cyan-100">
+                <span className="font-medium text-sm truncate mr-2">{config[0].name}</span>
+                <button onClick={() => removeScentFromConfig(index, 0)} className="text-cyan-600 hover:text-cyan-900 shrink-0"><X size={16}/></button>
+            </div>
+        ) : (
+            <span className="text-slate-400 text-sm text-center font-medium">Scent Slot 1</span>
+        )}
+    </div>
+    
+    {/* Slot 2 */}
+    <div className="flex-1 border-2 border-dashed border-slate-200 rounded-xl p-3 flex flex-col justify-center min-h-[60px] bg-slate-50/50">
+        {config[1] ? (
+            <div className="flex items-center justify-between bg-cyan-50 text-cyan-800 px-3 py-2 rounded-lg border border-cyan-100">
+                <span className="font-medium text-sm truncate mr-2">{config[1].name}</span>
+                <button onClick={() => removeScentFromConfig(index, 1)} className="text-cyan-600 hover:text-cyan-900 shrink-0"><X size={16}/></button>
+            </div>
+        ) : (
+            <span className="text-slate-400 text-sm text-center font-medium">Scent Slot 2</span>
+        )}
+    </div>
+</div>
 
                                 {/* AVAILABLE SCENTS */}
                                 <div>
-                                    <p className="text-xs text-slate-500 font-semibold mb-2 uppercase tracking-wider">Pilih dari sini:</p>
+                                    <p className="text-xs text-slate-500 font-semibold mb-2 uppercase tracking-wider">Choose from here:</p>
                                     <div className="flex gap-2 flex-wrap">
                                         {product.scents?.map((s) => (
                                             <button
@@ -619,7 +620,7 @@ export default function ProductDetail() {
                 {/* WIZARD FOOTER */}
                 <div className="p-6 border-t border-slate-100 bg-white flex flex-col sm:flex-row gap-4 items-center justify-between">
                     <div className="text-sm font-medium text-slate-500">
-                        Total:{' '}
+                        Total: {' '}
                         <span className="text-xl font-bold text-slate-900 ml-1">
                             Rp {configurations.reduce((sum, config) => sum + (product?.price || 0) + config.reduce((s, scent) => s + (scent.extra_price || 0), 0), 0).toLocaleString("id-ID")}
                         </span>
@@ -630,14 +631,14 @@ export default function ProductDetail() {
                             disabled={addingToCart}
                             className="flex-1 sm:flex-none px-6 py-3 rounded-full font-bold border-2 border-slate-900 text-slate-900 bg-white hover:bg-slate-900 hover:text-white transition-all disabled:border-slate-200 disabled:text-slate-400 disabled:bg-slate-50 disabled:cursor-not-allowed flex items-center justify-center"
                         >
-                            {addingToCart ? "Memproses..." : <><ShoppingCart size={18} className="mr-2"/> Ke Keranjang</>}
+                            {addingToCart ? "Processing..." : <><ShoppingCart size={18} className="mr-2"/> Add to Cart</>}
                         </button>
                         <button
                             onClick={handleBulkCheckout}
                             disabled={addingToCart}
                             className="flex-1 sm:flex-none px-6 py-3 rounded-full font-bold bg-cyan-600 text-white shadow-md hover:bg-cyan-700 hover:shadow-lg transition-all disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none disabled:cursor-not-allowed"
                         >
-                            Beli Sekarang
+                            Buy Now
                         </button>
                     </div>
                 </div>
