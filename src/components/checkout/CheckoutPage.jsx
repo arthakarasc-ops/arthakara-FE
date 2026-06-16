@@ -36,8 +36,6 @@ export default function CheckoutPage() {
   const { token, isAuthenticated } = useAuth();
   const { cartItems, cartTotal, clearAll } = useCart();
 
-  // Proteksi: Redirect ke login dihapus untuk memungkinkan guest checkout via WA
-
   // Data produk dari URL params (untuk Direct Buy)
   const directBuyItemsParam = params.get("direct_buy_items");
   let directBuyItems = [];
@@ -101,9 +99,8 @@ export default function CheckoutPage() {
         subtotal: item.subtotal
       }));
 
-  // Hitung total berat, asumsikan 500 gram per produk karena produk Arvena Shell (termasuk packing)
+  // Hitung total berat
   const totalWeight = checkoutItems.reduce((sum, item) => sum + (item.quantity * 500), 0);
-  
   const subTotalAmount = checkoutItems.reduce((sum, item) => sum + item.subtotal, 0);
   const shippingAmount = selectedService ? selectedService.cost : 0;
   const totalAmount = subTotalAmount + shippingAmount;
@@ -154,7 +151,7 @@ export default function CheckoutPage() {
       setSelectedService(null);
       const res = await getShippingCost({
         destination: selectedCity,
-        weight: totalWeight > 0 ? totalWeight : 500, // min 500 gram
+        weight: totalWeight > 0 ? totalWeight : 500,
         courier: courier
       });
       if (res.isSuccess) {
@@ -168,62 +165,154 @@ export default function CheckoutPage() {
   }, [selectedCity, courier, totalWeight, orderType]);
 
 
+  // =========================
+  // HELPER: Validasi Form
+  // =========================
+  const validateForm = () => {
+    if (checkoutItems.length === 0) {
+      alert("Tidak ada item untuk di-checkout.");
+      return false;
+    }
 
+    if (!tanggalLahir) {
+      alert("Harap isi Tanggal Lahir.");
+      return false;
+    }
+
+    if (orderType === 'delivery') {
+      if (!selectedProvince || !selectedCity || !courier || !selectedService) {
+        alert("Harap lengkapi opsi pengiriman (Provinsi, Kota, Kurir, dan Layanan).");
+        return false;
+      }
+      if (!shipping.first_name.trim() || !shipping.last_name.trim() || !shipping.address.trim() || !shipping.postal_code.trim() || !shipping.phone_number.trim()) {
+        alert("Harap lengkapi semua field alamat pengiriman.");
+        return false;
+      }
+    } else {
+      // Take Away — hanya butuh nama dan nomor telepon
+      if (!shipping.first_name.trim() || !shipping.last_name.trim() || !shipping.phone_number.trim()) {
+        alert("Harap isi Nama Lengkap dan Nomor Telepon untuk data pengambilan.");
+        return false;
+      }
+    }
+
+    return true;
+  };
 
   // =========================
-  // HANDLER: Buat Order → Bayar Doku
+  // HELPER: Build Pesan WhatsApp
+  // Jika orderId ada → order sudah tersimpan di sistem (user login)
+  // Jika orderId null → order tidak tersimpan (guest)
+  // =========================
+  const buildWAMessage = (orderId = null) => {
+    const totalFormatted = totalAmount.toLocaleString("id-ID");
+    const shippingFormatted = shippingAmount.toLocaleString("id-ID");
+
+    const itemDetails = checkoutItems.map(item => {
+      const scentNames = (item.scentDetails || [])
+        .map(scent => scent?.name)
+        .filter(Boolean)
+        .join(', ');
+      const scentSuffix = scentNames ? ` (Wangi: ${scentNames})` : '';
+      return `- ${item.name}${scentSuffix} (x${item.quantity})`;
+    }).join('\n');
+
+    let text = orderId
+      ? `Halo Arthakara, saya ingin konfirmasi pembayaran pesanan saya:\n\n`
+      : `Halo Arthakara, saya ingin melakukan pemesanan:\n\n`;
+
+    if (orderId) {
+      text += `*Order ID:* #${orderId}\n`;
+    }
+
+    text += `*Informasi Pemesan:*\n`;
+    text += `- Nama: ${shipping.first_name} ${shipping.last_name}\n`;
+    text += `- No HP: ${shipping.phone_number}\n`;
+    if (tanggalLahir) text += `- Tgl Lahir: ${tanggalLahir}\n`;
+
+    text += `\n*Metode Pengambilan:* ${orderType === 'delivery' ? 'Delivery (Dikirim)' : 'Take Away (Ambil Sendiri)'}\n`;
+
+    if (orderType === 'delivery') {
+      text += `\n*Alamat Pengiriman:*\n`;
+      text += `${shipping.address}`;
+      if (shipping.appartment_suite) text += `, ${shipping.appartment_suite}`;
+      text += `\n${shipping.city}, ${shipping.province} ${shipping.postal_code}\n`;
+      text += `${shipping.country}\n`;
+      text += `\n*Kurir:* ${courier.toUpperCase()} - ${selectedService?.service}\n`;
+    }
+
+    text += `\n*Detail Pesanan:*\n${itemDetails}\n\n`;
+    text += `*Ongkos Kirim:* Rp ${shippingFormatted}\n`;
+    text += `*Total Tagihan: Rp ${totalFormatted}*\n\n`;
+    text += `Mohon kirimkan instruksi pembayaran / QRIS. Terima kasih!`;
+
+    return text;
+  };
+
+  // =========================
+  // HANDLER UTAMA: Buat Order & Bayar
+  // Ada 3 jalur:
+  //   A) Guest + WhatsApp → langsung ke WA, tanpa simpan ke DB
+  //   B) Login + WhatsApp → simpan ke DB dulu, lalu ke WA dengan Order ID
+  //   C) Login + Doku    → simpan ke DB, lalu ke Doku (tidak diubah)
   // =========================
   const handleOrder = async () => {
-    if (!isAuthenticated && paymentMethod === "doku") {
-      alert("Kamu harus login terlebih dahulu untuk menggunakan metode pembayaran Doku.");
+
+    // === GUARD: Doku wajib login ===
+    if (paymentMethod === "doku" && !isAuthenticated) {
+      alert(
+        "Pembayaran via Doku memerlukan login terlebih dahulu.\n\n" +
+        "Silakan login untuk menggunakan Doku, atau pilih metode WhatsApp untuk melanjutkan tanpa login."
+      );
       router.push("/login?redirect=/checkout");
       return;
     }
 
-    if (checkoutItems.length === 0) {
-      return alert("Tidak ada item untuk di-checkout.");
-    }
-
-    // Validasi form berdasarkan tipe order
-    if (!tanggalLahir) {
-      return alert("Harap isi Tanggal Lahir.");
-    }
-    
-    if (orderType === 'delivery') {
-      if (!selectedProvince || !selectedCity || !courier || !selectedService) {
-        return alert("Harap lengkapi opsi pengiriman (Provinsi, Kota, Kurir, dan Layanan).");
-      }
-
-      // Validasi lengkap untuk Delivery
-      if (!shipping.first_name.trim() || !shipping.last_name.trim() || !shipping.address.trim() || !shipping.postal_code.trim() || !shipping.phone_number.trim()) {
-        return alert("Harap lengkapi semua field alamat pengiriman.");
-      }
-    } else {
-      // Validasi khusus Take Away (Hanya butuh nama dan nomor telepon)
-      if (!shipping.first_name.trim() || !shipping.last_name.trim() || !shipping.phone_number.trim()) {
-        return alert("Harap isi Nama Lengkap dan Nomor Telepon untuk data pengambilan.");
-      }
-    }
+    // Validasi form terlebih dahulu
+    if (!validateForm()) return;
 
     setIsLoading(true);
 
     try {
-      // Jika Take Away, isi otomatis data alamat yang tidak perlu dengan "Take Away"
-      const finalShipping = orderType === "take_away" 
+
+      // ============================================================
+      // JALUR A: GUEST + WHATSAPP
+      // Tidak simpan data ke database.
+      // Langsung buat pesan WA dari isian form dan buka WhatsApp.
+      // ============================================================
+      if (paymentMethod === "whatsapp" && !isAuthenticated) {
+        const waNumber = "6287784488639";
+        const message = buildWAMessage(null); // tanpa Order ID
+        const encodedText = encodeURIComponent(message);
+
+        alert("Pesanan Anda akan dikirim ke WhatsApp Admin untuk diproses secara manual.");
+        router.push("/");
+        setTimeout(() => {
+          window.location.href = `https://api.whatsapp.com/send?phone=${waNumber}&text=${encodedText}`;
+        }, 100);
+
+        setIsLoading(false);
+        return;
+      }
+
+      // ============================================================
+      // JALUR B & C: USER LOGIN (WhatsApp atau Doku)
+      // Selalu simpan order ke database terlebih dahulu.
+      // ============================================================
+
+      // Jika Take Away, isi otomatis data alamat yang tidak perlu
+      const finalShipping = orderType === "take_away"
         ? { ...shipping, address: "Take Away", city: "Take Away", province: "Take Away", postal_code: "00000", country: "Indonesia" }
         : shipping;
-        
+
       // Salin otomatis alamat pengiriman ke alamat penagihan
       const finalBilling = { ...finalShipping };
 
-      // ============================================
-      // STEP 1: Buat Order di backend
-      // ============================================
       const payload = {
         tanggal_lahir: tanggalLahir,
         shipping_address: finalShipping,
         billing_address: finalBilling,
-        shipping_method_id: orderType === "take_away" ? 4 : 1, // ID 4 = Take Away, ID 1 = Regular/Delivery
+        shipping_method_id: orderType === "take_away" ? 4 : 1,
         courier_code: orderType === "take_away" ? null : courier,
         courier_service: orderType === "take_away" ? null : selectedService?.service,
         shipping_cost: orderType === "take_away" ? null : selectedService?.cost,
@@ -235,17 +324,13 @@ export default function CheckoutPage() {
         })),
       };
 
-      const headers = {
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-      };
-      if (token) {
-        headers["Authorization"] = `Bearer ${token}`;
-      }
-
       const orderRes = await fetch("https://arthakara.id/api/orders/create", {
         method: "POST",
-        headers: headers,
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
         body: JSON.stringify(payload),
       });
 
@@ -270,51 +355,30 @@ export default function CheckoutPage() {
 
       setOrderResult(orderData.data);
 
+      // ============================================================
+      // JALUR B: LOGIN + WHATSAPP
+      // Order sudah tersimpan di DB (admin bisa lihat di dashboard).
+      // Buka WA dengan Order ID agar admin bisa tracking.
+      // ============================================================
       if (paymentMethod === "whatsapp") {
         const waNumber = "6287784488639";
-        const totalFormatted = totalAmount.toLocaleString("id-ID");
-        const shippingFormatted = shippingAmount.toLocaleString("id-ID");
-        
-        const itemDetails = checkoutItems.map(item => {
-          const scentNames = (item.scentDetails || [])
-            .map(scent => scent?.name)
-            .filter(Boolean)
-            .join(', ');
-          const scentSuffix = scentNames ? ` (Wangi: ${scentNames})` : '';
-          return `- ${item.name}${scentSuffix} (x${item.quantity})`;
-        }).join('\n');
-        
-        let text = `Halo Arthakara, saya ingin melakukan konfirmasi pembayaran pesanan saya:\n\n`;
-        text += `*Order ID:* #${orderId}\n`;
-        text += `*Nama Pemesan:* ${finalShipping.first_name} ${finalShipping.last_name}\n`;
-        text += `*Metode Pengiriman:* ${orderType === 'delivery' ? 'Delivery' : 'Take Away'}\n`;
-        if (orderType === 'delivery') {
-          text += `*Kurir:* ${courier.toUpperCase()} - ${selectedService?.service}\n`;
-        }
-        text += `\n*Detail Pesanan:*\n${itemDetails}\n\n`;
-        text += `*Ongkir:* Rp ${shippingFormatted}\n`;
-        text += `*Total Tagihan: Rp ${totalFormatted}*\n\n`;
-        text += `Mohon kirimkan instruksi pembayaran / QRIS. Terima kasih!`;
-        
-        const encodedText = encodeURIComponent(text);
-        
+        const message = buildWAMessage(orderId); // dengan Order ID
+        const encodedText = encodeURIComponent(message);
+
         clearAll();
-        alert("Pesanan berhasil dibuat! Kamu akan diarahkan ke WhatsApp untuk melakukan pembayaran.");
-        if (isAuthenticated) {
-          router.push("/profile");
-        } else {
-          router.push("/");
-        }
+        alert(`Pesanan #${orderId} berhasil dibuat dan tersimpan di akun Anda!\nKamu akan diarahkan ke WhatsApp untuk konfirmasi pembayaran.`);
+        router.push("/profile");
         setTimeout(() => {
           window.location.href = `https://api.whatsapp.com/send?phone=${waNumber}&text=${encodedText}`;
         }, 100);
+
         setIsLoading(false);
         return;
       }
 
-      // ============================================
-      // STEP 2: Buat Transaksi Doku Checkout
-      // ============================================
+      // ============================================================
+      // JALUR C: LOGIN + DOKU (tidak diubah dari versi sebelumnya)
+      // ============================================================
       const payRes = await fetch("https://arthakara.id/api/pay", {
         method: "POST",
         headers: {
@@ -333,15 +397,12 @@ export default function CheckoutPage() {
         return;
       }
 
-      // ============================================
-      // STEP 3: Redirect ke halaman pembayaran Doku
-      // ============================================
       clearAll();
       alert("Pesanan berhasil dibuat! Kamu akan diarahkan ke halaman pembayaran Doku.");
       window.location.href = payData.payment_url;
+
     } catch (err) {
       console.error("Checkout Error Full:", err);
-      // Jika error punya detail dari Laravel (response.json() tadi gagal)
       alert("Terjadi kesalahan sistem: " + (err.message || "Koneksi terputus"));
     } finally {
       setIsLoading(false);
@@ -506,25 +567,84 @@ export default function CheckoutPage() {
               Metode Pembayaran
             </h2>
             <div className="flex flex-col sm:flex-row gap-4">
-              <label className={`flex-1 flex items-start gap-3 p-5 rounded-2xl border-2 cursor-pointer transition-all ${paymentMethod === 'whatsapp' ? 'border-cyan-600 bg-cyan-50 shadow-md shadow-cyan-100' : 'border-slate-200 hover:border-cyan-200 hover:bg-slate-50'}`}>
+              {/* WhatsApp Option */}
+              <label className={`flex-1 flex items-start gap-3 p-5 rounded-2xl border-2 cursor-pointer transition-all ${paymentMethod === 'whatsapp' ? 'border-green-500 bg-green-50 shadow-md shadow-green-100' : 'border-slate-200 hover:border-green-200 hover:bg-slate-50'}`}>
                 <input type="radio" name="paymentMethod" value="whatsapp" checked={paymentMethod === 'whatsapp'} onChange={() => setPaymentMethod('whatsapp')} className="hidden" />
                 <div className="flex-1">
-                  <div className={`font-bold ${paymentMethod === 'whatsapp' ? 'text-cyan-800' : 'text-slate-700'} flex justify-between items-center`}>
-                    WhatsApp (Manual)
+                  <div className={`font-bold ${paymentMethod === 'whatsapp' ? 'text-green-800' : 'text-slate-700'} flex justify-between items-center`}>
+                    <span>WhatsApp (Manual)</span>
+                    <span className="text-xs font-normal bg-green-100 text-green-700 px-2 py-0.5 rounded-full">Tanpa Login</span>
                   </div>
                   <div className="text-sm mt-1 text-slate-500">Pembayaran via QRIS/Transfer diarahkan ke WA Admin</div>
                 </div>
               </label>
               
+              {/* Doku Option */}
               <label className={`flex-1 flex items-start gap-3 p-5 rounded-2xl border-2 cursor-pointer transition-all ${paymentMethod === 'doku' ? 'border-cyan-600 bg-cyan-50 shadow-md shadow-cyan-100' : 'border-slate-200 hover:border-cyan-200 hover:bg-slate-50'}`}>
                 <input type="radio" name="paymentMethod" value="doku" checked={paymentMethod === 'doku'} onChange={() => setPaymentMethod('doku')} className="hidden" />
                 <div className="flex-1">
                   <div className={`font-bold ${paymentMethod === 'doku' ? 'text-cyan-800' : 'text-slate-700'} flex justify-between items-center`}>
-                    Doku
+                    <span>Doku</span>
+                    <span className="text-xs font-normal bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">Perlu Login</span>
                   </div>
-                  <div className="text-sm mt-1 text-slate-500">Virtual Account, QRIS, & E-Wallet</div>
+                  <div className="text-sm mt-1 text-slate-500">Virtual Account, QRIS, &amp; E-Wallet (Otomatis)</div>
                 </div>
               </label>
+            </div>
+
+            {/* Info Banner berdasarkan kondisi */}
+            <div className="mt-4">
+              {/* Guest + WhatsApp → info tidak tersimpan */}
+              {paymentMethod === 'whatsapp' && !isAuthenticated && (
+                <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl text-sm">
+                  <svg className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <div>
+                    <p className="font-semibold text-amber-800">Order tanpa akun</p>
+                    <p className="text-amber-700 mt-0.5">Data pesanan <strong>tidak akan tersimpan</strong> di sistem kami. Pembayaran akan dikonfirmasi manual oleh admin via WhatsApp. <a href="/login?redirect=/checkout" className="underline font-semibold">Login</a> jika ingin data pesanan tersimpan di akun Anda.</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Login + WhatsApp → info data tersimpan */}
+              {paymentMethod === 'whatsapp' && isAuthenticated && (
+                <div className="flex items-start gap-3 p-4 bg-green-50 border border-green-200 rounded-xl text-sm">
+                  <svg className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <div>
+                    <p className="font-semibold text-green-800">Order tersimpan di akun Anda</p>
+                    <p className="text-green-700 mt-0.5">Karena Anda sudah login, data pesanan akan tersimpan dan bisa dilihat di profil Anda. Pembayaran dikonfirmasi manual via WhatsApp ke admin.</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Guest + Doku → peringatan wajib login */}
+              {paymentMethod === 'doku' && !isAuthenticated && (
+                <div className="flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-xl text-sm">
+                  <svg className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                  <div>
+                    <p className="font-semibold text-red-800">Login diperlukan untuk Doku</p>
+                    <p className="text-red-700 mt-0.5">Pembayaran via Doku memerlukan akun terdaftar. <a href="/login?redirect=/checkout" className="underline font-semibold">Login sekarang</a> atau pilih WhatsApp untuk melanjutkan tanpa login.</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Login + Doku → info normal */}
+              {paymentMethod === 'doku' && isAuthenticated && (
+                <div className="flex items-start gap-3 p-4 bg-cyan-50 border border-cyan-200 rounded-xl text-sm">
+                  <svg className="w-5 h-5 text-cyan-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <div>
+                    <p className="font-semibold text-cyan-800">Pembayaran otomatis via Doku</p>
+                    <p className="text-cyan-700 mt-0.5">Anda akan diarahkan ke halaman pembayaran Doku. Tersedia Virtual Account, QRIS, dan E-Wallet. Data pesanan tersimpan otomatis.</p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -587,13 +707,31 @@ export default function CheckoutPage() {
               disabled={isLoading || (orderType === 'delivery' && !selectedService)}
               className="w-full bg-cyan-600 text-white py-4 rounded-xl font-bold tracking-wide hover:bg-cyan-700 disabled:bg-slate-300 disabled:text-slate-500 disabled:cursor-not-allowed transition-all shadow-md shadow-cyan-600/20 active:scale-[0.98]"
             >
-              {isLoading ? "Memproses..." : "Selesaikan Pembayaran"}
+              {isLoading ? "Memproses..." : (
+                paymentMethod === 'whatsapp'
+                  ? "Pesan via WhatsApp"
+                  : "Bayar via Doku"
+              )}
             </button>
 
-            <div className="mt-6 pt-4 border-t border-slate-100 text-center flex flex-col gap-2 items-center">
+            {/* Status Login Info */}
+            <div className="mt-4 text-center">
+              {isAuthenticated ? (
+                <p className="text-xs text-green-600 font-medium">✓ Anda sedang login — data pesanan tersimpan</p>
+              ) : (
+                <p className="text-xs text-slate-400">
+                  Belum login?{" "}
+                  <a href="/login?redirect=/checkout" className="text-cyan-600 font-semibold hover:underline">
+                    Login di sini
+                  </a>
+                </p>
+              )}
+            </div>
+
+            <div className="mt-4 pt-4 border-t border-slate-100 text-center flex flex-col gap-2 items-center">
               <svg className="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
               <p className="text-xs text-slate-500">
-                Pembayaran diproses secara aman oleh <span className="font-semibold text-slate-700">Doku</span>
+                Pembayaran Doku diproses secara aman oleh <span className="font-semibold text-slate-700">Doku</span>
               </p>
             </div>
           </div>
