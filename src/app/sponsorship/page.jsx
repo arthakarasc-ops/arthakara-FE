@@ -45,7 +45,7 @@ export default function SponsorshipPage() {
       imageClass: "h-10 md:h-14 lg:h-18", 
       directionClass: "animate-scroll-right", // Gerak ke Kanan (Selang-seling)
       sponsors: [
-        { name: "Silver Dummy 1", logo: "/image/Coming soon.jpg" },
+        { name: "Silver Dummy 1", logo: "/image/Keluarga Lie Kok Liang.jpeg" },
         { name: "Silver Dummy 2", logo: "/image/Coming soon.jpg" },
         { name: "Silver Dummy 3", logo: "/image/Coming soon.jpg" },
         { name: "Silver Dummy 4", logo: "/image/Coming soon.jpg" },
