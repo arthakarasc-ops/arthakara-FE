@@ -6,7 +6,8 @@ import Contact from "@/components/section/Contact";
 
 export default function SponsorshipPage() {
   const [mounted, setMounted] = useState(false);
-  const [activeTier, setActiveTier] = useState("official");
+  // Mengubah default state ke "featured" supaya pas dibuka langsung muncul yang isi 2 logo
+  const [activeTier, setActiveTier] = useState("featured");
 
   useEffect(() => {
     setMounted(true);
