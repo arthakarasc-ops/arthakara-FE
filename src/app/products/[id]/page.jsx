@@ -4,7 +4,7 @@ import Navbar from "@/components/ui/Navbar";
 
 export async function generateStaticParams() {
   try {
-    const res = await fetch('https://arthakara.id/api/products', {
+    const res = await fetch('https://arthakara.i/api/products', {
       headers: { 'Accept': 'application/json' },
       next: { revalidate: 3600 }
     });

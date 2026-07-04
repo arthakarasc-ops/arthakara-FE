@@ -1,4 +1,4 @@
-const BASE_URL = "https://arthakara.id/api";
+const BASE_URL = "https://arthakara.i/api";
 
 // GET ALL COLLECTIONS
 export const getCollections = async () => {
