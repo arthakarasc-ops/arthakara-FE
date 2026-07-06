@@ -1,4 +1,4 @@
-const BASE_URL = "https://arthakara.i/api";
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://arthakara.id/api";
 
 /*
 |------------------------------------------------------------------

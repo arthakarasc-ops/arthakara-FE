@@ -5,7 +5,7 @@ import { ShoppingBag } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 export default function ProductCard({ product, index = 0 }) {
-  const IMAGE_BASE_URL = "https://arthakara.i";
+  const IMAGE_BASE_URL = process.env.NEXT_PUBLIC_URL || "https://arthakara.id";
 
   // Kumpulkan semua URL gambar dari usage_images (array baru) atau fallback ke usage_image tunggal
   const images = (() => {

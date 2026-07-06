@@ -13,8 +13,8 @@ export default function ProductDetail() {
   const router = useRouter();
   const { token, isAuthenticated } = useAuth();
   const { addBulkItem, loading: cartLoading } = useCart();
-  const BASE_URL = "https://arthakara.i/api";
-  const IMAGE_BASE_URL = "https://arthakara.i";
+  const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://arthakara.id/api";
+  const IMAGE_BASE_URL = process.env.NEXT_PUBLIC_URL || "https://arthakara.id";
 
 
   const [product, setProduct] = useState(null);
